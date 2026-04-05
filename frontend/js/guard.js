@@ -25,8 +25,6 @@ function showPanel(id, el) {
     if (el) el.classList.add('active');
 }
 
-
- */
 async function loadApprovedLeaves() {
     try {
         // Fetching all leave requests from Warden API
