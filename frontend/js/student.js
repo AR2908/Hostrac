@@ -32,7 +32,7 @@ function showPanel(id, el) {
 
 async function loadMyHistory() {
     try {
-        const res = await fetch(`http://localhost:5000/api/student/history/${user._id}`);
+        const res = await fetch(`${API_BASE_URL}/api/student/history/${user._id}`);
         const history = await res.json();
         
         const recentTable = document.getElementById('recentTable');
