@@ -128,3 +128,41 @@ input:focus, select:focus { border-color: var(--primary); background: white; }
 .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
 .modal-content { background: white; margin: 8% auto; padding: 30px; width: 450px; border-radius: 24px; position: relative; box-shadow: var(--card-shadow); animation: fadeIn 0.3s ease; }
 .close-btn { position: absolute; right: 25px; top: 20px; font-size: 24px; cursor: pointer; color: #b2bec3; }
+/* Sirf Mobile Screens ke liye (768px se niche) */
+@media screen and (max-width: 768px) {
+    
+    /* 1. Sidebar ke purane logout container ko hide ya adjust karein */
+    .sidebar .logout {
+        border-top: none;
+        padding-top: 0;
+        position: absolute; /* Ise sidebar se nikaal kar top par le jayenge */
+        top: 15px;
+        right: 15px;
+        z-index: 1001; /* Sabse upar dikhega */
+    }
+
+    /* 2. Logout Button ka look mobile ke liye compact karein */
+    .sidebar .logout a {
+        background: rgba(214, 48, 49, 0.1); /* Light red background */
+        color: #d63031 !important; /* Red color text */
+        padding: 8px 12px !important;
+        border-radius: 8px;
+        font-size: 12px;
+        border: 1px solid rgba(214, 48, 49, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* 3. "Logout" text ko chota karke sirf Icon ya chota text dikhayein */
+    .sidebar .logout a span {
+        font-size: 14px;
+    }
+
+    /* 4. Agar mobile par sidebar row-wise hai (top bar), toh logo ko thoda left shift karein */
+    .sidebar .logo {
+        max-width: 150px;
+    }
+}
