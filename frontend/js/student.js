@@ -1,25 +1,23 @@
 /**
- * Hostrac - Student Dashboard (Final Professional Version)
- * Features: Auto-Sync every 15s, Status Change Sound Alert, History Tracking
+ * Hostrac - Student Dashboard (Fixed for Separate In/Out Entries)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
-const bell = new Audio('bell.wav'); // Sound file in root folder
-let lastRequestStatus = ""; // To track status changes for notifications
+const bell = new Audio(window.location.origin + '/bell.mp3'); // Path fixed
+let lastRequestStatus = ""; 
 
 // 1. Authentication Check
 if (!user || user.role !== 'student') {
     window.location.href = 'login.html';
 } else {
-    // Welcome & Sidebar Info
     if(document.getElementById('sidebarName')) document.getElementById('sidebarName').innerText = user.name;
     if(document.getElementById('sidebarRoom')) document.getElementById('sidebarRoom').innerText = "Room: " + (user.roomNo || "N/A");
     if(document.getElementById('welcomeMsg')) document.getElementById('welcomeMsg').innerText = "Welcome, " + user.name + "!";
 }
 
 /**
- * 2. Helper: Format Date & Time for Table
+ * 2. Helper: Format Date & Time
  */
 function formatDateTime(dateString) {
     if (!dateString) return "---";
@@ -32,7 +30,7 @@ function formatDateTime(dateString) {
 }
 
 /**
- * 3. Panel Switcher (Dashboard / Apply / History)
+ * 3. Panel Switcher
  */
 function showPanel(id, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -46,7 +44,7 @@ function showPanel(id, el) {
 }
 
 /**
- * 4. Load Outpass History & Status Notifications
+ * 4. Load Outpass History (With Separate In/Out Rows)
  */
 async function loadMyHistory() {
     try {
@@ -57,12 +55,10 @@ async function loadMyHistory() {
         
         // --- NOTIFICATION LOGIC ---
         if (history.length > 0) {
-            const latestRequest = history[history.length - 1]; // Sabse naya request
-            
-            // Agar status badal gaya hai (e.g. Pending -> Approved)
+            const latestRequest = history[history.length - 1]; 
             if (lastRequestStatus !== "" && latestRequest.status !== lastRequestStatus) {
-                bell.play().catch(e => console.log("Audio needs user interaction first"));
-                alert(`📢 Status Update: Your outpass request is now ${latestRequest.status.toUpperCase()}`);
+                bell.play().catch(e => console.log("Audio needs interaction"));
+                alert(`📢 Status Update: Your outpass is now ${latestRequest.status.toUpperCase()}`);
             }
             lastRequestStatus = latestRequest.status;
         }
@@ -80,43 +76,46 @@ async function loadMyHistory() {
         // Process Table Rows (Latest on Top)
         [...history].reverse().forEach((h) => {
             const statusColor = h.status === 'Approved' ? '#27ae60' : (h.status === 'Rejected' ? '#e74c3c' : '#f39c12');
-            const leaveDate = new Date(h.leaveDate).toLocaleDateString('en-GB');
+            const leaveDateStr = new Date(h.leaveDate).toLocaleDateString('en-GB');
 
-            let rowHtml = "";
-
-            // Case 1: Journey Completed (Back in Hostel)
+            // --- CASE 1: ENTRY RECORD (Agar wapas aa chuke hain) ---
             if (h.entryTime) {
-                rowHtml = `
+                const entryRow = `
                     <tr style="background-color: #f0fff4;">
-                        <td>${leaveDate}</td>
+                        <td>${leaveDateStr}</td>
                         <td>${h.reason}</td>
                         <td><b style="color: #27ae60">COMPLETED</b></td>
-                        <td><b style="color:#27ae60">IN</b><br><small>${formatDateTime(h.entryTime)}</small></td>
+                        <td><b style="color:#27ae60">IN ✅</b><br><small>${formatDateTime(h.entryTime)}</small></td>
                     </tr>`;
-            } 
-            // Case 2: Currently Out
-            else if (h.exitTime) {
-                rowHtml = `
-                    <tr style="background-color: #fff5f5;">
-                        <td>${leaveDate}</td>
-                        <td>${h.reason}</td>
-                        <td><b style="color: ${statusColor}">${h.status}</b></td>
-                        <td><b style="color:#d63031">OUT</b><br><small>${formatDateTime(h.exitTime)}</small></td>
-                    </tr>`;
-            } 
-            // Case 3: Applied but not yet exited
-            else {
-                rowHtml = `
-                    <tr>
-                        <td>${leaveDate}</td>
-                        <td>${h.reason}</td>
-                        <td><b style="color: ${statusColor}">${h.status}</b></td>
-                        <td><b style="color:#b2bec3">Waiting</b></td>
-                    </tr>`;
+                if (historyTable) historyTable.innerHTML += entryRow;
+                if (recentTable) recentTable.innerHTML += entryRow;
             }
 
-            if (historyTable) historyTable.innerHTML += rowHtml;
-            if (recentTable) recentTable.innerHTML += rowHtml;
+            // --- CASE 2: EXIT RECORD (Agar bahar gaye hain) ---
+            if (h.exitTime) {
+                const exitRow = `
+                    <tr style="background-color: #fff5f5;">
+                        <td>${leaveDateStr}</td>
+                        <td>${h.reason}</td>
+                        <td><b style="color: ${statusColor}">${h.status}</b></td>
+                        <td><b style="color:#d63031">OUT 🚩</b><br><small>${formatDateTime(h.exitTime)}</small></td>
+                    </tr>`;
+                if (historyTable) historyTable.innerHTML += exitRow;
+                if (recentTable) recentTable.innerHTML += exitRow;
+            }
+
+            // --- CASE 3: WAITING (Approved but not exited yet) ---
+            if (!h.exitTime && !h.entryTime) {
+                const waitingRow = `
+                    <tr>
+                        <td>${leaveDateStr}</td>
+                        <td>${h.reason}</td>
+                        <td><b style="color: ${statusColor}">${h.status}</b></td>
+                        <td><b style="color:#b2bec3">Not Started</b></td>
+                    </tr>`;
+                if (historyTable) historyTable.innerHTML += waitingRow;
+                if (recentTable) recentTable.innerHTML += waitingRow;
+            }
         });
     } catch (err) {
         console.error("History Fetch Error:", err);
@@ -164,16 +163,11 @@ if(applyForm) {
     });
 }
 
-/**
- * 6. Global Functions
- */
 function logout() {
     localStorage.clear();
     window.location.href = 'login.html';
 }
 
-// AUTO-REFRESH: Har 15 seconds mein status check hoga
+// Auto-Refresh
 setInterval(loadMyHistory, 15000);
-
-// Initialize on Page Load
 window.onload = loadMyHistory;
