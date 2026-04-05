@@ -126,6 +126,7 @@ async function loadOutpass() {
         [...data].reverse().forEach(req => {
             let displayName = req.studentId ? req.studentId.name : `EX- ${req.studentName || ''}`;
             let displayRoom = req.studentId ? req.studentId.roomNo : (req.roomNo || 'N/A');
+            nameStyle = "color: #d63031; font-weight: bold;"; 
             
             let actionHtml = (req.status === 'Pending') ? `
                     <button class="btn btn-primary" style="padding:5px 10px; font-size:11px;" onclick="updateReq('${req._id}', 'Approved')">Approve</button>
