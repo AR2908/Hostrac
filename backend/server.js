@@ -41,6 +41,6 @@ app.listen(PORT, () => {
     console.log(`\n🚀 SERVER RUNNING SUCCESSFULLY!`);
     console.log(`=============================================`);
     console.log(`👉 Click here to open Project:`);
-    console.log(`\x1b[36mhttp://localhost:${PORT}/pages/login.html\x1b[0m`);
+    console.log(`\x1b[36mhttp://hostrac.onrender.com/pages/login.html\x1b[0m`);
     console.log(`=============================================\n`);
 });
