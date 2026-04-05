@@ -6,7 +6,7 @@ const user = JSON.parse(localStorage.getItem('user'));
 let studentsCache = [];
 
 const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-const API_BASE_URL = isLocal ? 'https://hostrac.onrender.com' : 'https://your-ngrok-id.ngrok-free.app';
+const API_BASE_URL ='https://hostrac.onrender.com';
 
 if (!user || user.role !== 'warden') {
     window.location.href = 'login.html';
