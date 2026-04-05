@@ -104,7 +104,7 @@ document.getElementById('applyForm').addEventListener('submit', async (e) => {
     const leaveDate = document.getElementById('leaveDate').value;
     const returnDate = document.getElementById('returnDate').value;
 
-    const res = await fetch('http://localhost:5000/api/student/apply', {
+    const res = await fetch('${API_BASE_URL}/api/student/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentId: user._id, reason, leaveDate, returnDate })
