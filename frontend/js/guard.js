@@ -1,5 +1,5 @@
 /**
- * Hostrac - Guard Dashboard (Updated with EX-Student Logic)
+ * Hostrac - Guard Dashboard (Fixed URL & Template Literals)
  */
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const guard = JSON.parse(localStorage.getItem('user'));
@@ -15,7 +15,7 @@ function showPanel(id, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + id).classList.add('active');
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-    el.classList.add('active');
+    if(el) el.classList.add('active');
 }
 
 /**
@@ -23,53 +23,50 @@ function showPanel(id, el) {
  */
 async function loadApprovedLeaves() {
     try {
-        const res = await fetch('${API_BASE_URL}/guard/approved');
-        const leaves = await res.json();
+        // --- FIXED: Backticks use kiye hain aur URL wahi rakha hai jo aapne check kiya ---
+        const res = await fetch(`${API_BASE_URL}/api/warden/leave-requests`);
+        const leavesAll = await res.json();
+        
+        // Sirf wahi dikhayein jo Approved hain
+        const leaves = leavesAll.filter(req => req.status === 'Approved');
+
         const tableBody = document.getElementById('guardTableBody');
+        if(!tableBody) return;
         tableBody.innerHTML = '';
 
         let outCount = 0;
 
-        leaves.reverse().forEach(req => {
-            // --- EX-STUDENT LOGIC START ---
+        // Reverse taaki naye requests upar dikhen
+        [...leaves].reverse().forEach(req => {
+            // --- EX-STUDENT LOGIC ---
             let studentDisplayName = "";
             let roomDisplay = "";
             let nameStyle = "";
 
             if (req.studentId) {
-                // Agar student active hai (Database mein maujood hai)
                 studentDisplayName = req.studentId.name;
                 roomDisplay = req.studentId.roomNo;
-                nameStyle = "color: #2d3436;"; // Normal color
+                nameStyle = "color: #2d3436;"; 
             } else {
-                // Agar student delete (Ex-Student) ho gaya hai, toh backup fields use karein
                 studentDisplayName = `EX- ${req.studentName || 'Student'}`;
                 roomDisplay = req.roomNo || 'Left';
-                nameStyle = "color: #d63031; font-weight: bold;"; // Red color alert for Guard
+                nameStyle = "color: #d63031; font-weight: bold;"; 
             }
-            // --- EX-STUDENT LOGIC END ---
 
             const leaveDateFormatted = new Date(req.leaveDate).toLocaleDateString('en-GB');
 
-            // --- BUTTON LOGIC START ---
+            // --- BUTTON LOGIC ---
             let actionHtml = "";
-
-            // Agar student wapas aa chuka hai (In status + Entry Time exists)
             if (req.gateStatus === 'In' && req.entryTime) {
                 actionHtml = `<span style="color:#27ae60; font-weight:bold; font-size:12px;">✅ COMPLETED</span>`;
-            } 
-            // Agar student abhi hostel ke andar hai (Pehli baar exit karega)
-            else if (req.gateStatus === 'In') {
+            } else if (req.gateStatus === 'In') {
                 actionHtml = `<button class="btn" style="background:#e67e22; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer;" 
                                 onclick="updateGate('${req._id}', 'Out')">Mark Exit 🚪</button>`;
-            } 
-            // Agar student bahar hai (Wapas aane wala hai)
-            else if (req.gateStatus === 'Out') {
+            } else if (req.gateStatus === 'Out') {
                 actionHtml = `<button class="btn" style="background:#2ecc71; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer;" 
                                 onclick="updateGate('${req._id}', 'In')">Mark Entry 🏠</button>`;
                 outCount++;
             }
-            // --- BUTTON LOGIC END ---
 
             tableBody.innerHTML += `
                 <tr>
@@ -87,9 +84,9 @@ async function loadApprovedLeaves() {
         });
 
         // Update Stats
-        document.getElementById('countApproved').innerText = leaves.length;
-        document.getElementById('countOut').innerText = outCount;
-        document.getElementById('countIn').innerText = (leaves.length - outCount);
+        if(document.getElementById('countApproved')) document.getElementById('countApproved').innerText = leaves.length;
+        if(document.getElementById('countOut')) document.getElementById('countOut').innerText = outCount;
+        if(document.getElementById('countIn')) document.getElementById('countIn').innerText = (leaves.length - outCount);
 
     } catch (err) {
         console.error("Error loading guard data:", err);
@@ -101,14 +98,18 @@ async function loadApprovedLeaves() {
  */
 async function updateGate(id, status) {
     try {
-        const res = await fetch('${API_BASE_URL}/api/guard/update-gate', {
+        // --- FIXED: Backticks use kiye hain ---
+        const res = await fetch(`${API_BASE_URL}/api/guard/update-gate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ requestId: id, gateStatus: status })
         });
         const data = await res.json();
         if(data.success) {
-            loadApprovedLeaves(); // Refresh table immediately
+            alert(`✅ Marked ${status.toUpperCase()} Successfully`);
+            loadApprovedLeaves(); 
+        } else {
+            alert("❌ Update Failed: " + data.message);
         }
     } catch (err) {
         console.error("Gate update failed:", err);
