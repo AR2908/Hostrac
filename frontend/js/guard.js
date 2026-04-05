@@ -23,7 +23,7 @@ function showPanel(id, el) {
  */
 async function loadApprovedLeaves() {
     try {
-        const res = await fetch('http://localhost:5000/api/guard/approved');
+        const res = await fetch('${API_BASE_URL}/guard/approved');
         const leaves = await res.json();
         const tableBody = document.getElementById('guardTableBody');
         tableBody.innerHTML = '';
