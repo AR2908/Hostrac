@@ -80,7 +80,7 @@ async function viewStudentHistory(studentId, studentName) {
         const res = await fetch(`${API_BASE_URL}/api/student/history/${studentId}`);
         const history = await res.json();
         
-        document.getElementById('historyStudentName').innerText = `${studentName}'s Full History`;
+        document.getElementById('historyStudentName').innerText = `${studentName}'s Record`;
         const tbody = document.getElementById('historyModalBody');
         tbody.innerHTML = '';
 
@@ -165,10 +165,12 @@ async function updateReq(id, status) {
 function openProfile(i) {
     const s = studentsCache[i];
     document.getElementById('modalBody').innerHTML = `
-        <div style="margin-bottom:10px;"><label style="font-weight:700; color:var(--primary); font-size:10px;">COLLEGE</label><br>${s.collegeName || '-'}</div>
-        <div style="margin-bottom:10px;"><label style="font-weight:700; color:var(--primary); font-size:10px;">MOBILE</label><br>${s.mobile || '-'}</div>
-        <div style="margin-bottom:10px;"><label style="font-weight:700; color:var(--primary); font-size:10px;">FATHER</label><br>${s.fatherName || '-'}</div>
-        <div style="margin-bottom:10px;"><label style="font-weight:700; color:var(--primary); font-size:10px;">ADDRESS</label><br>${s.address || '-'}</div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">COLLEGE</label><br><span>${s.collegeName || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">MOBILE</label><br><span>${s.mobile || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">FATHER NAME</label><br><span>${s.fatherName || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">MOTHER NAME</label><br><span>${s.motherName || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">FEES STATUS</label><br><span class="${s.feesStatus === 'Paid' ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">ADDRESS</label><br><span>${s.address || '-'}</span></div>
     `;
     document.getElementById('profileModal').style.display = 'block';
 }
