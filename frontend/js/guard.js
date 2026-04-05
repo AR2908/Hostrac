@@ -101,7 +101,7 @@ async function loadApprovedLeaves() {
  */
 async function updateGate(id, status) {
     try {
-        const res = await fetch('http://localhost:5000/api/guard/update-gate', {
+        const res = await fetch('${API_BASE_URL}/api/guard/update-gate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ requestId: id, gateStatus: status })
