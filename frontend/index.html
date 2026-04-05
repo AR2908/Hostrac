@@ -9,6 +9,8 @@
 </head>
 <body>
 
+    <canvas id="bgCanvas"></canvas>
+
     <header>
         <div class="container navbar">
             <div class="logo">HOST<span>RAC</span></div>
@@ -22,7 +24,7 @@
 
     <section class="hero">
         <div class="container hero-content">
-            <div class="badge">SCSIT DAVV Digital Initiative 2026</div>
+            <div class="badge">MY Mini_Project 2026</div>
             <h1>Smart Outpass <br><span class="gradient-text">Management System</span></h1>
             <p>Paperless management for modern hostels. Fast approvals, real-time security logs, and a user-friendly interface for students and staff.</p>
             <div class="cta-group">
@@ -30,45 +32,44 @@
                 <a href="#features" class="btn-ghost">View Features</a>
             </div>
         </div>
-        <div class="hero-overlay"></div>
     </section>
 
     <section id="features" class="features-section">
         <div class="container">
-            <div class="section-head">
+            <div class="section-head reveal">
                 <h2>Advanced Features</h2>
                 <p>Designed to solve real-world hostel problems with technology.</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card reveal">
                     <div class="icon-box blue"><i class="fas fa-paper-plane"></i></div>
                     <h3>Digital Applications</h3>
-                    <p>Students can apply for outpasses from their mobile devices anywhere, anytime.</p>
+                    <p>78+ students can apply for outpasses from their mobile devices anywhere[cite: 3, 5].</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card reveal">
                     <div class="icon-box green"><i class="fas fa-check-double"></i></div>
                     <h3>Warden Instant Approval</h3>
-                    <p>Wardens get real-time notifications and can approve or reject with a single click.</p>
+                    <p>Wardens can approve or reject requests with a single click from the dashboard.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card reveal">
                     <div class="icon-box red"><i class="fas fa-user-shield"></i></div>
                     <h3>Gate Security Control</h3>
-                    <p>Security guards can verify outpasses instantly using a live authorized list.</p>
+                    <p>Security guards verify entries instantly using a live digital authorized list.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card reveal">
                     <div class="icon-box yellow"><i class="fas fa-history"></i></div>
                     <h3>Automated Logs</h3>
-                    <p>No more physical registers. Every entry and exit is logged digitally for future audits.</p>
+                    <p>Full outpass history is maintained digitally for every student.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card reveal">
                     <div class="icon-box purple"><i class="fas fa-chart-pie"></i></div>
-                    <h3>Dashboard Statistics</h3>
+                    <h3>Live Statistics</h3>
                     <p>Real-time count of students who are currently 'IN' or 'OUT' of the hostel premises.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card reveal">
                     <div class="icon-box cyan"><i class="fas fa-bell"></i></div>
                     <h3>Smart Alerts</h3>
-                    <p>Automatic alerts for late returns or unauthorized movements.</p>
+                    <p>Sound alerts for new pending requests and status updates for students.</p>
                 </div>
             </div>
         </div>
@@ -76,40 +77,43 @@
 
     <section id="workflow" class="workflow">
         <div class="container">
-            <h2 class="section-title">Easy 3-Step Process</h2>
+            <h2 class="section-title reveal">Easy 3-Step Process</h2>
             <div class="steps-grid">
-                <div class="step">
+                <div class="step reveal">
                     <div class="step-num">1</div>
                     <h4>Student Applies</h4>
-                    <p>Submit reason and dates through the portal.</p>
+                    <p>Submit reason and dates through the digital portal.</p>
                 </div>
-                <div class="step">
+                <div class="step reveal">
                     <div class="step-num">2</div>
                     <h4>Warden Approves</h4>
-                    <p>Real-time review and digital status update.</p>
+                    <p>Real-time review and digital status update on the dashboard.</p>
                 </div>
-                <div class="step">
+                <div class="step reveal">
                     <div class="step-num">3</div>
                     <h4>Guard Verifies</h4>
-                    <p>Scan entry/exit at the gate with live logs.</p>
+                    <p>Scan entry/exit at the gate with automated movement logs.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <section class="final-cta">
-        <div class="glass-box">
-            <h2>Experience the Future of Hostel Management</h2>
-            <br>
-            <a href="pages/login.html" class="btn-main">Launch Portal</a>
+        <div class="container">
+            <div class="glass-box reveal">
+                <h2>Experience the Future of Hostel Management</h2>
+                <br>
+                <a href="pages/login.html" class="btn-main">Launch Portal</a>
+            </div>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <p>© 2026 HOSTRAC | Developed Arjun Bathole for SCSIT DAVV ,</p>
+            <p>© 2026 HOSTRAC | Developed by Arjun Bathole for SCSIT DAVV</p>
         </div>
     </footer>
 
+    <script src="landing.js"></script>
 </body>
 </html>
