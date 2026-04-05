@@ -11,7 +11,9 @@
         .modal-content { background: white; margin: 5% auto; padding: 30px; width: 450px; border-radius: 24px; position: relative; box-shadow: var(--card-shadow); }
         .close-btn { position: absolute; right: 25px; top: 20px; font-size: 24px; cursor: pointer; color: #b2bec3; }
         
-        
+        /* New Styles for Clickable Name */
+        .clickable-name { color: var(--primary); cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .clickable-name:hover { text-decoration: underline; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -44,8 +46,9 @@
                 <p id="count-in" style="color: #00b894;">0</p>
             </div>
         </div>
+
         <div id="panel-outpass" class="panel active">
-            <div class="section-header"><h2>Student Outpass History</h2></div>
+            <div class="section-header"><h2>Student Outpass Requests</h2></div>
             <div class="section">
                 <table>
                     <thead>
@@ -63,14 +66,20 @@
         </div>
 
         <div id="panel-records" class="panel">
-            <div class="section-header"><h2>Active Students Directory</h2></div>
+            <div class="section-header">
+                <h2>Active Students Directory</h2>
+                <p style="font-size: 11px; color: #636e72;">(Click Name to view History)</p>
+            </div>
             <div class="section">
                 <table>
                     <thead>
-                        <tr><th>Name</th>
+                        <tr>
+                            <th>Name</th>
                             <th>Room</th>
                             <th>Current Status</th>
-                            <th>Fees Status</th><th>Action</th></tr>
+                            <th>Fees Status</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="recordsBody"></tbody>
                 </table>
@@ -83,6 +92,26 @@
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Student Profile Detail</h3>
             <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content" style="width: 90%; max-width: 800px;">
+            <span class="close-btn" onclick="document.getElementById('historyModal').style.display='none'">&times;</span>
+            <h3 id="historyStudentName" style="margin-bottom: 20px; color: var(--primary);">Outpass History</h3>
+            <div style="overflow-x: auto; max-height: 400px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Time In/Out</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyModalBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
