@@ -5,7 +5,7 @@ const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 let studentsCache = [];
 let lastRequestCount = 0; 
-const bell = new Audio('bell.wav'); 
+const bell = new Audio('bell.mp3'); 
 
 // Authentication Check
 if (!user || user.role !== 'warden') {
