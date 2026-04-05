@@ -1,14 +1,9 @@
-/**
- * Hostrac - Guard Dashboard (Final Professional Version)
- * Features: Auto-Sync every 12s, Sound on Action, EX-Student Logic
- */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const guard = JSON.parse(localStorage.getItem('user'));
-const bell = new Audio('bell.mp3'); // Ensure bell.wav is in your root folder
+const bell = new Audio('bell.mp3'); 
 let lastApprovedCount = 0;
 
-// 1. Authentication & Security Check
 if (!guard || guard.role !== 'guard') {
     window.location.href = 'login.html';
 } else {
@@ -30,8 +25,7 @@ function showPanel(id, el) {
     if (el) el.classList.add('active');
 }
 
-/**
- * 3. Load Approved Leaves & Update UI (Real-time)
+
  */
 async function loadApprovedLeaves() {
     try {
