@@ -144,16 +144,13 @@ async function updateReq(id, status) {
 
 function openProfile(i) {
     const s = studentsCache[i];
-    const modalBody = document.getElementById('modalBody');
-    if(!modalBody) return;
-    
-    modalBody.innerHTML = `
-        <div style="text-align:left; line-height:1.6;">
-            <p><b>College:</b> ${s.collegeName || '-'}</p>
-            <p><b>Mobile:</b> ${s.mobile || '-'}</p>
-            <p><b>Father:</b> ${s.fatherName || '-'}</p>
-            <p><b>Address:</b> ${s.address || '-'}</p>
-        </div>
+    document.getElementById('modalBody').innerHTML = `
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">COLLEGE</label><br><span>${s.collegeName || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">MOBILE</label><br><span>${s.mobile || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">FATHER NAME</label><br><span>${s.fatherName || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">MOTHER NAME</label><br><span>${s.motherName || '-'}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">FEES STATUS</label><br><span class="${s.feesStatus === 'Paid' ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">ADDRESS</label><br><span>${s.address || '-'}</span></div>
     `;
     document.getElementById('profileModal').style.display = 'block';
 }
