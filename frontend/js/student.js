@@ -1,25 +1,28 @@
 /**
- * Hostrac - Student Dashboard (Full Updated with Auto-Sync & Sound)
+ * Hostrac - Student Dashboard (Final Professional Version)
+ * Features: Auto-Sync every 15s, Status Change Sound Alert, History Tracking
  */
+
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
-const bell = new Audio('bell.wav'); // Sound file ka path
-let lastStatus = ""; // Purane status ko yaad rakhne ke liye
+const bell = new Audio('bell.wav'); // Sound file in root folder
+let lastRequestStatus = ""; // To track status changes for notifications
 
+// 1. Authentication Check
 if (!user || user.role !== 'student') {
     window.location.href = 'login.html';
-}
-
-// 1. Sidebar & Welcome Info
-function setupUI() {
+} else {
+    // Welcome & Sidebar Info
     if(document.getElementById('sidebarName')) document.getElementById('sidebarName').innerText = user.name;
     if(document.getElementById('sidebarRoom')) document.getElementById('sidebarRoom').innerText = "Room: " + (user.roomNo || "N/A");
     if(document.getElementById('welcomeMsg')) document.getElementById('welcomeMsg').innerText = "Welcome, " + user.name + "!";
 }
 
-// 2. Helper: Date & Time Formatting
+/**
+ * 2. Helper: Format Date & Time for Table
+ */
 function formatDateTime(dateString) {
-    if (!dateString) return "";
+    if (!dateString) return "---";
     const date = new Date(dateString);
     const d = date.getDate().toString().padStart(2, '0');
     const m = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -28,7 +31,9 @@ function formatDateTime(dateString) {
     return `${d}/${m}/${y} | ${t}`;
 }
 
-// 3. Panel Switcher
+/**
+ * 3. Panel Switcher (Dashboard / Apply / History)
+ */
 function showPanel(id, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     const targetPanel = document.getElementById('panel-' + id);
@@ -36,25 +41,30 @@ function showPanel(id, el) {
     
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     if(el) el.classList.add('active');
+
+    if(id === 'history' || id === 'dashboard') loadMyHistory();
 }
 
-// 4. Load History & Check for Updates (Auto-Refresh)
+/**
+ * 4. Load Outpass History & Status Notifications
+ */
 async function loadMyHistory() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/student/history/${user._id}`);
+        if (!res.ok) throw new Error("Connection Error");
+        
         const history = await res.json();
         
         // --- NOTIFICATION LOGIC ---
-        // Agar history mein koi data hai aur status change hua hai
         if (history.length > 0) {
-            const currentReq = history[history.length - 1]; // Latest request
+            const latestRequest = history[history.length - 1]; // Sabse naya request
             
-            // Agar status "Pending" se "Approved" ya "Rejected" hua ho
-            if (lastStatus !== "" && currentReq.status !== lastStatus) {
-                bell.play().catch(e => console.log("Interaction needed for sound"));
-                alert(`🔔 Status Update: Your outpass is now ${currentReq.status}`);
+            // Agar status badal gaya hai (e.g. Pending -> Approved)
+            if (lastRequestStatus !== "" && latestRequest.status !== lastRequestStatus) {
+                bell.play().catch(e => console.log("Audio needs user interaction first"));
+                alert(`📢 Status Update: Your outpass request is now ${latestRequest.status.toUpperCase()}`);
             }
-            lastStatus = currentReq.status;
+            lastRequestStatus = latestRequest.status;
         }
 
         const recentTable = document.getElementById('recentTable');
@@ -63,17 +73,18 @@ async function loadMyHistory() {
         if (recentTable) recentTable.innerHTML = '';
         if (historyTable) historyTable.innerHTML = '';
 
-        // Stats Update
+        // Update Stats
         if(document.getElementById('statTotal')) document.getElementById('statTotal').innerText = history.length;
         if(document.getElementById('statActive')) document.getElementById('statActive').innerText = history.filter(h => h.status === 'Approved').length;
 
-        // Table Rendering
+        // Process Table Rows (Latest on Top)
         [...history].reverse().forEach((h) => {
             const statusColor = h.status === 'Approved' ? '#27ae60' : (h.status === 'Rejected' ? '#e74c3c' : '#f39c12');
             const leaveDate = new Date(h.leaveDate).toLocaleDateString('en-GB');
 
             let rowHtml = "";
 
+            // Case 1: Journey Completed (Back in Hostel)
             if (h.entryTime) {
                 rowHtml = `
                     <tr style="background-color: #f0fff4;">
@@ -82,21 +93,25 @@ async function loadMyHistory() {
                         <td><b style="color: #27ae60">COMPLETED</b></td>
                         <td><b style="color:#27ae60">IN</b><br><small>${formatDateTime(h.entryTime)}</small></td>
                     </tr>`;
-            } else if (h.exitTime) {
+            } 
+            // Case 2: Currently Out
+            else if (h.exitTime) {
                 rowHtml = `
-                    <tr style="${h.gateStatus === 'Out' ? 'background-color: #fff5f5;' : ''}">
+                    <tr style="background-color: #fff5f5;">
                         <td>${leaveDate}</td>
                         <td>${h.reason}</td>
                         <td><b style="color: ${statusColor}">${h.status}</b></td>
                         <td><b style="color:#d63031">OUT</b><br><small>${formatDateTime(h.exitTime)}</small></td>
                     </tr>`;
-            } else {
+            } 
+            // Case 3: Applied but not yet exited
+            else {
                 rowHtml = `
                     <tr>
                         <td>${leaveDate}</td>
                         <td>${h.reason}</td>
                         <td><b style="color: ${statusColor}">${h.status}</b></td>
-                        <td><b style="color:#b2bec3">Not Started</b></td>
+                        <td><b style="color:#b2bec3">Waiting</b></td>
                     </tr>`;
             }
 
@@ -104,11 +119,13 @@ async function loadMyHistory() {
             if (recentTable) recentTable.innerHTML += rowHtml;
         });
     } catch (err) {
-        console.error("Error loading history:", err);
+        console.error("History Fetch Error:", err);
     }
 }
 
-// 5. Apply Outpass Logic
+/**
+ * 5. Apply Outpass Form Logic
+ */
 const applyForm = document.getElementById('applyForm');
 if(applyForm) {
     applyForm.addEventListener('submit', async (e) => {
@@ -124,41 +141,39 @@ if(applyForm) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     studentId: user._id, 
-                    reason, 
-                    leaveDate, 
-                    returnDate 
+                    reason: reason, 
+                    leaveDate: leaveDate, 
+                    returnDate: returnDate 
                 })
             });
 
             const data = await response.json();
 
             if (data.success) {
-                alert("✅ Application Submitted Successfully");
+                alert("✅ Outpass Applied Successfully!");
                 applyForm.reset();
                 showPanel('dashboard', document.querySelector('nav a:first-child'));
                 loadMyHistory();
             } else {
-                alert("❌ Error: " + data.message);
+                alert("❌ Failed: " + data.message);
             }
         } catch (err) {
             console.error("Apply Error:", err);
-            alert("Connection Error! Backend check karein.");
+            alert("Server Error! Backend check karein.");
         }
     });
 }
 
-// 6. Logout
+/**
+ * 6. Global Functions
+ */
 function logout() {
     localStorage.clear();
     window.location.href = 'login.html';
 }
 
-// --- AUTO REFRESH LOGIC ---
-// Har 15 second mein student ka data update hoga
+// AUTO-REFRESH: Har 15 seconds mein status check hoga
 setInterval(loadMyHistory, 15000);
 
-// Window Load par initialize karein
-window.onload = () => {
-    setupUI();
-    loadMyHistory();
-};
+// Initialize on Page Load
+window.onload = loadMyHistory;
