@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Guard | HOSTRAC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../style/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">HOSTRAC</div>
+        <div class="logo-sub">Security & Gate Control</div>
+        
+        <div class="user-badge">
+            <div class="name" id="guardName">Loading...</div>
+            <div class="role">🛡️ Gate Security</div>
+        </div>
+
+        <nav>
+            <a class="active" onclick="showPanel('gate', this)">
+                <span class="icon">🚪</span> Gate Control
+            </a>
+            <a onclick="showPanel('logs', this)">
+                <span class="icon">📊</span> Today's Logs
+            </a>
+        </nav>
+
+        <div class="logout">
+            <a onclick="logout()" style="color: #ff7675; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <span class="icon">🚪</span> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="main">
+        
+        <div id="panel-gate" class="panel active">
+            <div class="page-header">
+                <h1>Gate Movement Control</h1>
+                <p>Monitor and record student exit/entry for approved outpasses</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="label">Approved Today</div>
+                    <div class="value" id="countApproved">0</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="label">Students OUT</div>
+                    <div class="value" id="countOut">0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="label">Students IN</div>
+                    <div class="value" id="countIn">0</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h3>Authorized Movements</h3>
+                    <button class="btn btn-primary" onclick="loadApprovedLeaves()">🔄 Refresh Gate</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Room No</th>
+                            <th>Out Date</th>
+                            <th>Current Status</th>
+                            <th style="text-align:center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guardTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="panel-logs" class="panel">
+            <div class="page-header">
+                <h1>Movement Logs</h1>
+                <p>History of gate activity for the current session</p>
+            </div>
+            <div class="section">
+                <p style="color: #636e72; text-align: center; padding: 50px;">
+                    Daily log summary feature coming soon...
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../js/guard.js"></script>
+    <script src="../js/login.js"></script>
+</body>
+</html>
