@@ -115,8 +115,8 @@ async function loadOutpass() {
                     <td>${displayRoom}</td>
                     <td class="reason-text">${req.reason}</td>
                     <td>
-                        <small>L: ${new Date(req.leaveDate).toLocaleDateString('en-GB')}</small><br>
-                        <small>R: ${new Date(req.returnDate).toLocaleDateString('en-GB')}</small>
+                        <small>Leav: ${new Date(req.leaveDate).toLocaleDateString('en-GB')}</small><br>
+                        <small>Return: ${new Date(req.returnDate).toLocaleDateString('en-GB')}</small>
                     </td>
                     <td style="text-align:center;">${actionHtml}</td>
                 </tr>`;
