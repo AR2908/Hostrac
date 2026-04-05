@@ -1,7 +1,7 @@
 /**
  * Hostrac - Guard Dashboard (Updated with EX-Student Logic)
  */
-
+const API_BASE_URL = 'https://hostrac.onrender.com';
 const guard = JSON.parse(localStorage.getItem('user'));
 
 if (!guard || guard.role !== 'guard') {
