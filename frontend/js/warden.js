@@ -79,7 +79,7 @@ async function loadRecords() {
  */
 async function loadOutpass() {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/warden/leave-requests`);
+        const res = await fetch(`${API_BASE_URL}/api/warden/-requests`);
         const data = await res.json();
         
         const pendingRequests = data.filter(r => r.status === 'Pending');
@@ -116,7 +116,7 @@ async function loadOutpass() {
                     <td>${displayRoom}</td>
                     <td class="reason-text">${req.reason}</td>
                     <td>
-                        <small>Leav: ${new Date(req.leaveDate).toLocaleDateString('en-GB')}</small><br>
+                        <small>Leave: ${new Date(req.leaveDate).toLocaleDateString('en-GB')}</small><br>
                         <small>Return: ${new Date(req.returnDate).toLocaleDateString('en-GB')}</small>
                     </td>
                     <td style="text-align:center;">${actionHtml}</td>
@@ -129,7 +129,7 @@ async function loadOutpass() {
 
 async function updateReq(id, status) {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/warden/update-leave`, {
+        const res = await fetch(`${API_BASE_URL}/api/warden/update-`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ requestId: id, status })
