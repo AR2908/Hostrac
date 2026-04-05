@@ -435,3 +435,26 @@ select:focus {
     cursor: pointer;
     color: #b2bec3;
 }
+@media screen and (max-width: 768px) {
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .logout {
+        order: -1; 
+        border-top: none;
+        padding-top: 0;
+        margin-bottom: 20px; 
+        align-self: flex-end; 
+    }
+
+    .sidebar .user-badge, 
+    .sidebar .logo-sub {
+        display: none;
+    }
+
+    nav {
+        order: 1;
+    }
+}
