@@ -1,60 +1,76 @@
-/* --- Google Fonts --- */
+/* --- Google Fonts & Root Variables --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
 :root {
-    --primary: #4facfe;
-    --primary-dark: #0081fb;
-    --sidebar-bg: #1e272e;
-    --body-bg: #f4f7f6;
-    --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    --transition: all 0.3s ease;
-    --success: #27ae60;
-    --danger: #ff7675;
+    --primary: #4facfe;
+    --primary-dark: #0081fb;
+    --sidebar-bg: #1e272e;
+    --body-bg: #f4f7f6;
+    --card-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    --transition: all 0.3s ease;
+    --success: #27ae60;
+    --danger: #ff7675;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-body { background: var(--body-bg); color: #2d3436; min-height: 100vh; display: flex; }
+body { background: var(--body-bg); color: #2d3436; height: 100vh; overflow: hidden; display: flex; }
 
 /* --- Sidebar Styling --- */
 .sidebar {
-    width: 260px; background: var(--sidebar-bg); color: white;
-    display: flex; flex-direction: column; padding: 25px; transition: var(--transition);
-    z-index: 100; position: sticky; top: 0; height: 100vh;
+    width: 260px; background: var(--sidebar-bg); color: white;
+    display: flex; flex-direction: column; padding: 25px; transition: var(--transition);
+    z-index: 10;
 }
 .sidebar .logo { font-size: 26px; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
 .sidebar .logo-sub { font-size: 11px; opacity: 0.5; margin-bottom: 30px; text-transform: uppercase; }
 
 .user-badge {
-    background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 30px;
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 30px;
+    border: 1px solid rgba(255,255,255,0.1);
 }
 .user-badge .name { font-weight: 600; font-size: 14px; color: #fff; }
 .user-badge .role { font-size: 11px; color: var(--primary); margin-top: 5px; }
 
 nav { flex: 1; }
 nav a {
-    display: flex; align-items: center; padding: 12px 15px; color: #8e9aaf;
-    text-decoration: none; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: var(--transition);
-    font-size: 14px;
+    display: flex; align-items: center; padding: 12px 15px; color: #8e9aaf;
+    text-decoration: none; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: var(--transition);
 }
 nav a.active, nav a:hover { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3); }
+nav a .icon { margin-right: 12px; font-size: 18px; }
 
+/* Logout Section & Hover */
 .logout { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-.logout a { color: var(--danger); font-weight: 600; cursor: pointer; display: block; padding: 10px; text-decoration: none; }
+.logout a {
+    display: flex; align-items: center; padding: 12px 15px; color: var(--danger);
+    text-decoration: none; border-radius: 10px; cursor: pointer; transition: var(--transition);
+    font-weight: 600;
+}
+.logout a:hover {
+    background: rgba(255, 118, 117, 0.1);
+    color: #ff4757;
+    transform: translateX(5px);
+}
 
-/* --- Main Content --- */
-.main { flex: 1; padding: 40px; background: #f8f9fa; overflow-x: hidden; }
+/* --- Main Content Area --- */
+.main { flex: 1; padding: 40px; overflow-y: auto; background: #f8f9fa; }
 .panel { display: none; animation: fadeIn 0.4s ease; }
 .panel.active { display: block; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* --- UI Elements --- */
-.section { background: white; padding: 25px; border-radius: 20px; box-shadow: var(--card-shadow); margin-bottom: 30px; overflow-x: auto; }
-.section-header { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+/* Stats Cards Styles */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stat-box { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #eee; }
+        .stat-box h3 { font-size: 12px; color: #636e72; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .stat-box p { font-size: 26px; opacity: 0.8; font-weight: 600;}
+        .total-card { border-bottom-color: #0984e3; }
+        .out-card { border-bottom-color: #d63031; }
+        .in-card { border-bottom-color: #00b894; }
 
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+/* --- Stats Grid --- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 35px; }
 .stat-card { padding: 25px; border-radius: 20px; color: white; box-shadow: var(--card-shadow); }
 .stat-card.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
 .stat-card.green { background: linear-gradient(135deg, #00b894 0%, #55efc4 100%); }
@@ -62,64 +78,53 @@ nav a.active, nav a:hover { background: var(--primary); color: white; box-shadow
 .stat-card .label { font-size: 12px; opacity: 0.8; font-weight: 600; }
 .stat-card .value { font-size: 28px; font-weight: 700; margin-top: 8px; }
 
-/* Warden Stat Boxes */
-.stat-box { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #eee; }
-.stat-box h3 { font-size: 11px; color: #636e72; text-transform: uppercase; margin-bottom: 5px; }
-.stat-box p { font-size: 24px; font-weight: 700; }
-.total-card { border-bottom-color: #0984e3; }
-.out-card { border-bottom-color: #d63031; }
-.in-card { border-bottom-color: #00b894; }
+/* --- Tables & UI Components --- */
+.section { background: white; padding: 30px; border-radius: 24px; box-shadow: var(--card-shadow); margin-bottom: 30px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
 
-/* --- Tables --- */
-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-th { text-align: left; padding: 15px; color: #b2bec3; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #f1f2f6; }
-td { padding: 15px; font-size: 13px; border-bottom: 1px solid #f8f9fa; vertical-align: middle; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 15px; color: #b2bec3; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid #f1f2f6; }
+td { padding: 18px 15px; font-size: 14px; border-bottom: 1px solid #f8f9fa; }
+tr:hover td { background-color: #fcfdfe; }
 
-/* --- Forms --- */
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 11px; font-weight: 700; color: #a4b0be; margin-bottom: 5px; text-transform: uppercase; }
-input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #f1f2f6; background: #f8f9fa; outline: none; transition: var(--transition); }
-input:focus { border-color: var(--primary); background: white; }
-
+/* --- Buttons --- */
 .btn { border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: var(--transition); }
-.btn-primary { background: var(--primary); color: white; width: 100%; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
 
-/* --- Login Page (FULL SCREEN IMAGE BACKGROUND) --- */
-.login-body { 
-    background: url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070') no-repeat center center fixed; 
-    background-size: cover; 
-    display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;
+/* --- Login Page Styling (Big Logo) --- */
+.login-body { display: flex; align-items: center; justify-content: center; background: #c3cfe2; height: 100vh; }
+.login-wrapper { display: flex; width: 950px; height: 600px; background: white; border-radius: 30px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.12); }
+
+.brand-panel { 
+    flex: 1; background: linear-gradient(135deg, #1e272e 0%, #2d3436 100%); 
+    padding: 60px; color: white; display: flex; flex-direction: column; justify-content: center; 
 }
-.login-wrapper { 
-    display: flex; width: 100%; max-width: 900px; min-height: 500px; 
-    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-    border-radius: 30px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+/* Login Page Bada Logo */
+.brand-panel .logo { 
+    font-size: 65px; /* Size bada kiya gaya */
+    font-weight: 800; 
+    color: var(--primary); 
+    letter-spacing: -1px; 
+    margin-bottom: 10px;
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
+.brand-panel .logo-sub { font-size: 14px; opacity: 0.8; margin-bottom: 20px; color: #fff; }
 
-/* --- Modals --- */
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
-.modal-content { background: white; margin: 5% auto; padding: 30px; width: 90%; max-width: 450px; border-radius: 20px; position: relative; }
-.close-btn { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #999; }
+.form-panel { flex: 1.2; padding: 60px; background: white; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 11px; font-weight: 700; color: #a4b0be; margin-bottom: 8px; text-transform: uppercase; }
 
-/* --- Warden Specifics --- */
-.date-box { font-size: 11px; font-weight: 600; color: #555; background: #ebf5ff; padding: 3px 8px; border-radius: 5px; display: block; margin-bottom: 3px; border-left: 3px solid var(--primary); }
-.fees-paid { background: #e3fcef; color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; }
-.fees-unpaid { background: #fff5f5; color: var(--danger); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+input, select, textarea { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #f1f2f6; background: #f8f9fa; outline: none; transition: var(--transition); }
+input:focus, select:focus { border-color: var(--primary); background: white; }
 
-/* --- Responsive Media Queries --- */
-@media (max-width: 768px) {
-    body { flex-direction: column; }
-    .sidebar { 
-        width: 100%; height: auto; position: sticky; padding: 15px; 
-        flex-direction: row; flex-wrap: wrap; justify-content: space-between;
-    }
-    .sidebar .logo-sub, .sidebar .user-badge { display: none; }
-    nav { width: 100%; display: flex; overflow-x: auto; margin-top: 10px; padding-bottom: 5px; }
-    nav a { margin: 0 5px 0 0; white-space: nowrap; font-size: 12px; }
-    .logout { border: none; padding: 0; }
-    .main { padding: 20px; }
-    .login-wrapper { flex-direction: column; }
-    .brand-panel { padding: 30px; }
-    .form-panel { padding: 30px; }
-    .brand-panel .logo { font-size: 40px !important; }
-}
+/* Status Badges */
+.fees-paid { background: #e3fcef; color: var(--success); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+.fees-unpaid { background: #fff5f5; color: #d63031; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+
+/* Modal Styles */
+.modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+.modal-content { background: white; margin: 8% auto; padding: 30px; width: 450px; border-radius: 24px; position: relative; box-shadow: var(--card-shadow); animation: fadeIn 0.3s ease; }
+.close-btn { position: absolute; right: 25px; top: 20px; font-size: 24px; cursor: pointer; color: #b2bec3; }
