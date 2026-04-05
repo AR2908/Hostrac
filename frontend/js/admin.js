@@ -2,7 +2,7 @@ const user = JSON.parse(localStorage.getItem('user'));
 let selectedStudentId = null;
 
 // Render ka URL yahan dalein (e.g., 'https://hostrac-backend.onrender.com')
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://hostrac.onrender.com';
 
 if (!user || user.role !== 'admin') {
     window.location.href = 'login.html';
@@ -28,11 +28,6 @@ function showPanel(id, el) {
     if (id === 'ex-students') loadExStudents();
     if (id === 'staff') loadStaffMembers();
 }
-
-// ==========================================
-// 1. STUDENT MANAGEMENT (With Live Status)
-// ==========================================
-
 document.getElementById('studentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
