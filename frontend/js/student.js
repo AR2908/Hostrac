@@ -1,7 +1,7 @@
 /**
  * Hostrac - Student Dashboard (Fixed for Separate In/Out Entries)
  */
-
+const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 if (!user || user.role !== 'student') window.location.href = 'login.html';
 
