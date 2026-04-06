@@ -1,7 +1,4 @@
-/**
- * Hostrac - Warden Dashboard (Full Fixed Version)
- * Features: Clickable Name for History, Real-time Sync, Sound Alert
- */
+
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 let studentsCache = [];
