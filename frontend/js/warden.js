@@ -161,7 +161,7 @@ async function updateReq(id, status) {
 
 function openProfile(i) {
     const s = studentsCache[i];
-    const formattedDate = s.admissionDate ? new Date(s.admissionDate).toLocaleDateString('en-GB') : '08/04/2026';
+    const formattedDate = s.admissionDate ? new Date(s.admissionDate).toLocaleDateString('en-GB') : '09/04/2026';
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">COLLEGE</label><br><span>${s.collegeName || '-'}</span></div>
         <div style="margin-bottom:10px;"><label style="font-weight:700; color:var(--primary); font-size:10px;">Hostel Admission Date</label><br><b>${formattedDate}</b></div>
