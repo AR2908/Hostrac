@@ -2,28 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Student Portal | HOSTRAC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style/style.css">
-    
-    <!-- IMPORTANT: QR Code Library -->
-    
 </head>
 <body>
 <div class="sidebar">
-    <div class="logo">HOSTRAC</div>
-    <div class="logo-sub">Student Portal</div>
+    <div>
+        <div class="logo">HOST<span>RAC</span></div>
+        <div class="logo-sub">Student Portal</div>
+    </div>
+    
     <div class="user-badge">
         <div class="name" id="sidebarName">Loading...</div>
         <div class="role">🎓 Student</div>
-        <div class="room" id="sidebarRoom" style="font-size: 11px; opacity: 0.7;">Room: ---</div>
+        <div class="room" id="sidebarRoom" style="font-size: 12px; color: #cbd5e1; margin-top: 5px;">Room: ---</div>
     </div>
+    
     <nav>
-        <a class="active" onclick="showPanel('dashboard', this)">🏠 Dashboard</a>
-        <a onclick="showPanel('apply', this)">📝 Apply Outpass</a>
-        <a onclick="showPanel('history', this)">🕒 Full History</a>
+        <a class="active" onclick="showPanel('dashboard', this)"><i class="fas fa-home icon"></i> Dashboard</a>
+        <a onclick="showPanel('apply', this)"><i class="fas fa-edit icon"></i> Apply Outpass</a>
+        <a onclick="showPanel('history', this)"><i class="fas fa-history icon"></i> Full History</a>
     </nav>
+    
     <div class="logout">
-        <a onclick="logout()" style="color: #ff7675; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: 600; display: block; margin-top: 20px; text-align: center;">🚪 Logout</a>
+        <a onclick="logout()"><i class="fas fa-sign-out-alt icon"></i> Logout</a>
     </div>
 </div>
 
@@ -42,20 +46,19 @@
             <div class="stat-card red"><div class="label">Late Returns</div><div class="value" id="statLate">0</div></div>
         </div>
 
-        <!-- NEW: QR CODE DISPLAY SECTION -->
-        <div class="section" style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 25px; border: 1px solid #6c5ce7; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <h3 style="color: #6c5ce7; margin-bottom: 5px;">Your Gate Pass QR</h3>
-            <p id="qrStatusMsg" style="font-weight: bold; color: #e17055; margin-bottom: 15px; font-size: 14px;">Checking Status...</p>
+        <!-- QR CODE SECTION -->
+        <div class="section" style="text-align: center; border: 2px solid var(--primary); background: #f8faff;">
+            <h3 style="color: var(--primary); margin-bottom: 5px;"><i class="fas fa-qrcode"></i> Your Gate Pass QR</h3>
+            <p id="qrStatusMsg" style="font-weight: 600; color: var(--warning); margin-bottom: 15px; font-size: 14px;">Checking Status...</p>
             
-            <!-- Ye box khali rahna chahiye, JS isme aakar drawing karegi -->
-            <div id="qrcode" style="display: flex; justify-content: center; align-items: center; min-height: 160px; background: white; padding: 10px; border-radius: 10px; width: max-content; margin: 0 auto;"></div>
+            <div id="qrcode" style="display: flex; justify-content: center; align-items: center; min-height: 180px; background: white; padding: 15px; border-radius: 16px; width: max-content; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
         </div>
 
         <div class="section">
-            <div class="section-header"><h3>Recent Activity</h3></div>
-            <div style="overflow-x: auto;">
+            <div class="section-header"><h3><i class="fas fa-bolt"></i> Recent Activity</h3></div>
+            <div class="table-responsive">
                 <table>
-                    <thead><tr><th>Reason</th><th>Date</th><th>Status</th><th>Gate</th></tr></thead>
+                    <thead><tr><th>Reason</th><th>Date</th><th>Status</th><th>Gate Updates</th></tr></thead>
                     <tbody id="recentTable"></tbody>
                 </table>
             </div>
@@ -64,22 +67,30 @@
 
     <!-- APPLY PANEL -->
     <div id="panel-apply" class="panel">
-        <div class="page-header"><h1>Apply Outpass</h1><p>Fill details for warden approval</p></div>
-        <div class="section" style="max-width: 600px;">
+        <div class="page-header">
+            <h1>Apply Outpass</h1>
+            <p>Fill details for warden approval</p>
+        </div>
+        <div class="section" style="max-width: 600px; margin: 0 auto;">
             <form id="applyForm" onsubmit="event.preventDefault();">
-                <div class="form-group"><label>Reason</label><input type="text" id="reason" placeholder="Home Visit" required></div>
-                <div class="form-group"><label>Out Date</label><input type="date" id="leaveDate" required></div>
-                <div class="form-group"><label>Return Date</label><input type="date" id="returnDate" required></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Application</button>
+                <div class="form-group"><label>Reason for Leave</label><input type="text" id="reason" placeholder="e.g. Going Home, Medical" required></div>
+                <div class="grid-form" style="margin-top: 5px;">
+                    <div class="form-group"><label>Out Date</label><input type="date" id="leaveDate" required></div>
+                    <div class="form-group"><label>Return Date</label><input type="date" id="returnDate" required></div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px; padding: 14px;"><i class="fas fa-paper-plane"></i> Submit Application</button>
             </form>
         </div>
     </div>
     
     <!-- HISTORY PANEL -->
     <div id="panel-history" class="panel">
-        <div class="page-header"><h1>Full History</h1></div>
+        <div class="page-header">
+            <h1>Full History</h1>
+            <p>Complete record of your hostel movements</p>
+        </div>
         <div class="section">
-            <div style="overflow-x: auto;">
+            <div class="table-responsive">
                 <table>
                     <thead><tr><th>Date</th><th>Reason</th><th>Status</th><th>Gate Updates</th></tr></thead>
                     <tbody id="historyTable"></tbody>
@@ -88,6 +99,7 @@
         </div>
     </div>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="../js/student.js"></script>
 <script src="../js/login.js"></script>
