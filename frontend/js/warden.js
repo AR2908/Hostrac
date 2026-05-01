@@ -91,10 +91,14 @@ async function viewStudentHistory(studentId, studentName) {
                         <td><span class="date-box">${new Date(h.leaveDate).toLocaleDateString('en-GB')}</span></td>
                         <td class="reason-text">${h.reason}</td>
                         <td><b style="color: ${statusColor}">${h.status}</b></td>
-                        <td>
-                            <small><b>Exit:</b> ${h.exitTime ? new Date(h.exitTime).toLocaleString() : '---'}</small><br>
-                            <small><b>Entry:</b> ${h.entryTime ? new Date(h.entryTime).toLocaleString() : '---'}</small>
-                        </td>
+                       <td>
+    <small>
+        <b>Exit:</b> ${h.exitTime ? new Date(h.exitTime).toLocaleString('en-IN', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : '---'}
+    </small><br>
+    <small>
+        <b>Entry:</b> ${h.entryTime ? new Date(h.entryTime).toLocaleString('en-IN', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : '---'}
+    </small>
+</td>
                     </tr>`;
             });
         }
