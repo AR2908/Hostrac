@@ -6,6 +6,7 @@
     <title>Security Guard | HOSTRAC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../style/style.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
     <div class="sidebar">
@@ -74,6 +75,17 @@
                     <tbody id="guardTableBody">
                         </tbody>
                 </table>
+                div class="section" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.2);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+        <h3 style="color: #fff; margin: 0;">📸 Quick QR Scan</h3>
+        <button id="toggleScanner" class="btn" style="background: #6c5ce7; color: #fff;" onclick="startScanner()">Open Camera</button>
+    </div>
+    
+    <!-- Camera Display Area -->
+    <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; overflow: hidden; border-radius: 15px; display: none;"></div>
+    
+    <div id="scanResult" style="text-align: center; margin-top: 10px; color: #55efc4; font-weight: bold;"></div>
+</div>
             </div>
         </div>
 
