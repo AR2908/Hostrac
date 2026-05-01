@@ -2,22 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Dashboard | HOSTRAC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style/style.css">
-    <style>
-        /* Extra styles for Admin Specific Components */
-        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .modal-content { background: white; margin: 5% auto; padding: 30px; width: 450px; border-radius: 24px; position: relative; animation: fadeIn 0.3s ease; }
-        .close-btn { position: absolute; right: 25px; top: 20px; font-size: 24px; cursor: pointer; color: #b2bec3; }
-        .btn-danger { background: #ff7675; color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; }
-        .btn-danger:hover { background: #d63031; transform: translateY(-2px); }
-    </style>
 </head>
 <body>
     <div class="sidebar">
-        <div class="logo">HOSTRAC</div>
-        <div class="logo-sub">Master Administrator</div>
+        <div>
+            <div class="logo">HOST<span>RAC</span></div>
+            <div class="logo-sub">Master Administrator</div>
+        </div>
         
         <div class="user-badge">
             <div class="name" id="adminDisplayName">Admin User</div>
@@ -25,114 +20,128 @@
         </div>
 
         <nav>
-            <a class="active" onclick="showPanel('add-user', this)">➕ Manage Students</a>
-            <a onclick="showPanel('ex-students', this)">🚪 Ex-Students</a>
-            <a onclick="showPanel('staff', this)">🛡️ Manage Staff</a>
+            <a class="active" onclick="showPanel('add-user', this)"><i class="fas fa-user-plus icon"></i> Manage Students</a>
+            <a onclick="showPanel('ex-students', this)"><i class="fas fa-user-graduate icon"></i> Ex-Students</a>
+            <a onclick="showPanel('staff', this)"><i class="fas fa-user-shield icon"></i> Manage Staff</a>
         </nav>
 
         <div class="logout">
-            <a onclick="logout()"><span>🚪</span> Logout</a>
+            <a onclick="logout()"><i class="fas fa-sign-out-alt icon"></i> Logout</a>
         </div>
     </div>
 
     <div class="main">
         <div id="panel-add-user" class="panel active">
+            <div class="page-header">
+                <h1>Student Management</h1>
+                <p>Register new students or manage active ones</p>
+            </div>
+            
             <div class="section">
-                <div class="section-header"><h2>Register Student</h2></div>
-                <form id="studentForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <input type="text" id="sName" placeholder="Name" required>
-                    <input type="email" id="sEmail" placeholder="Email" required>
-                    
-                    
-                        <input type="password" id="sPass" placeholder="Enter Student Password" required>
-                
-                    <input type="text" id="sCollege" placeholder="College">
-                    <input type="tel" id="sMobile" placeholder="Mobile Number" 
-       maxlength="10" 
-       oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                    <input type="text" id="sFather" placeholder="Father Name">
-                    <input type="text" id="sMother" placeholder="Mother Name">
-                    <input type="text" id="sRoom" placeholder="Room No">
-                    <textarea id="sAddress" placeholder="Address" style="grid-column: span 2;"></textarea>
-                    <button type="submit" class="btn btn-primary" style="grid-column: span 2;">Add Student</button>
+                <div class="section-header"><h3>Register New Student</h3></div>
+                <form id="studentForm" class="grid-form">
+                    <div class="form-group"><label>Name</label><input type="text" id="sName" placeholder="Full Name" required></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="sEmail" placeholder="student@example.com" required></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="sPass" placeholder="••••••••" required></div>
+                    <div class="form-group"><label>College</label><input type="text" id="sCollege" placeholder="College Name"></div>
+                    <div class="form-group"><label>Mobile</label><input type="tel" id="sMobile" placeholder="10-digit number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
+                    <div class="form-group"><label>Room No</label><input type="text" id="sRoom" placeholder="e.g. 101"></div>
+                    <div class="form-group"><label>Father's Name</label><input type="text" id="sFather" placeholder="Father's Name"></div>
+                    <div class="form-group"><label>Mother's Name</label><input type="text" id="sMother" placeholder="Mother's Name"></div>
+                    <div class="form-group" style="grid-column: span 2;"><label>Permanent Address</label><textarea id="sAddress" placeholder="Full Address" rows="2"></textarea></div>
+                    <button type="submit" class="btn btn-primary" style="grid-column: span 2;"><i class="fas fa-plus-circle"></i> Add Student</button>
                 </form>
             </div>
 
             <div class="section">
-                <div class="section-header"><h2>Current Active Students</h2></div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>Room No</th>
-                            <th>Live Status</th>
-                            <th>Fees Status</th>
-                            <th style="text-align: center;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="activeStudentTable"></tbody>
-                </table>
+                <div class="section-header"><h3>Current Active Students</h3></div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Room No</th>
+                                <th>Live Status</th>
+                                <th>Fees Status</th>
+                                <th style="text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeStudentTable"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="panel-ex-students" class="panel">
+            <div class="page-header">
+                <h1>Hostel Exit History</h1>
+                <p>Records of Ex-Students</p>
+            </div>
             <div class="section">
-                <div class="section-header"><h2>Hostel Exit History (Ex-Students)</h2></div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Room</th>
-                            <th>College</th>
-                            <th>Exit Date</th>
-                            <th>Exit Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="exStudentTable"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Room</th>
+                                <th>College</th>
+                                <th>Exit Date</th>
+                                <th>Exit Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exStudentTable"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="panel-staff" class="panel">
+            <div class="page-header">
+                <h1>Staff Management</h1>
+                <p>Add or remove Wardens and Security Guards</p>
+            </div>
             <div class="section">
-                <div class="section-header"><h2>Add Staff Member</h2></div>
+                <div class="section-header"><h3>Add Staff Member</h3></div>
                 <form id="staffForm" class="grid-form">
                     <div class="form-group"><label>Role</label><select id="stRole"><option value="warden">Warden</option><option value="guard">Security Guard</option></select></div>
-                    <div class="form-group"><label>Full Name</label><input type="text" id="stName" required></div>
-                    <div class="form-group"><label>Email (Login ID)</label><input type="email" id="stEmail" required></div>
-                    <div class="form-group"><label>Mobile</label><input type="tel" id="stMobile"
-                        maxlength="10" 
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
-                    <div class="form-group" style="grid-column: span 2;"><label>Password</label><input type="password" id="stPass" required></div>
-                    <button type="submit" class="btn btn-primary" style="grid-column: span 2; background: #00b894;">Register Staff Member</button>
+                    <div class="form-group"><label>Full Name</label><input type="text" id="stName" placeholder="Staff Name" required></div>
+                    <div class="form-group"><label>Email (Login ID)</label><input type="email" id="stEmail" placeholder="staff@hostrac.com" required></div>
+                    <div class="form-group"><label>Mobile</label><input type="tel" id="stMobile" placeholder="10-digit number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');"></div>
+                    <div class="form-group" style="grid-column: span 2;"><label>Password</label><input type="password" id="stPass" placeholder="••••••••" required></div>
+                    <button type="submit" class="btn btn-primary" style="grid-column: span 2; background: var(--success);"><i class="fas fa-user-plus"></i> Register Staff Member</button>
                 </form>
             </div>
 
             <div class="section">
-                <div class="section-header"><h2>Active Staff List</h2></div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Role</th>
-                            <th>Contact</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="staffListTable"></tbody>
-                </table>
+                <div class="section-header"><h3>Active Staff List</h3></div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Contact</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffListTable"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="exitModal" class="modal">
+    <!-- Modals -->
+    <div id="exitModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h3 style="margin-bottom: 20px; color: var(--primary);">Permanent Exit</h3>
-            <p style="font-size: 13px; color: #636e72; margin-bottom: 20px;">Mark as EX- Student</p>
-            <div class="form-group"><label>Exit Date</label><input type="date" id="exitDate"></div>
-            <div class="form-group"><label>Exit Time</label><input type="time" id="exitTime"></div>
-            <button class="btn-danger" style="width: 100%; margin-top: 20px; padding: 12px;" onclick="confirmPermanentExit()">Confirm Exit</button>
+            <span class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></span>
+            <h3 style="margin-bottom: 5px; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Permanent Exit</h3>
+            <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px;">Mark student as EX-Student</p>
+            <form onsubmit="event.preventDefault(); confirmPermanentExit();">
+                <div class="form-group"><label>Exit Date</label><input type="date" id="exitDate" required></div>
+                <div class="form-group" style="margin-top: 10px;"><label>Exit Time</label><input type="time" id="exitTime" required></div>
+                <button type="submit" class="btn btn-danger" style="width: 100%; margin-top: 20px; padding: 14px;">Confirm Exit</button>
+            </form>
         </div>
     </div>
 
