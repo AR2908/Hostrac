@@ -3,16 +3,12 @@ const router = express.Router();
 const LeaveRequest = require('../models/LeaveRequest');
 
 /**
- * 1. Sabhi Approved Requests ko fetch karna (Guard Dashboard ke liye)
+ * 1. Sabhi Approved Requests ko fetch karna (Guard Dashboard)
  */
 router.get('/approved', async (req, res) => {
     try {
-        // Warden dwara approve ki gayi requests nikalte hain
-        // .sort({ updatedAt: -1 }) se latest activity upar dikhegi
-        const approvedLeaves = await LeaveRequest.find({ 
-            status: 'Approved' 
-        })
-        .populate('studentId', 'name roomNo') // Active student details load karein
+        const approvedLeaves = await LeaveRequest.find({ status: 'Approved' })
+        .populate('studentId', 'name roomNo')
         .sort({ updatedAt: -1 });
         
         res.json(approvedLeaves);
@@ -23,27 +19,69 @@ router.get('/approved', async (req, res) => {
 });
 
 /**
- * 2. Gate Status Update (Exit/Entry Logic with Exact Time)
+ * 2. NEW: QR Scan hone par Automatic IN/OUT Update
+ */
+router.post('/scan-qr', async (req, res) => {
+    const { requestId, studentId } = req.body;
+
+    try {
+        const request = await LeaveRequest.findById(requestId);
+        
+        if (!request) {
+            return res.status(404).json({ success: false, message: "Request nahi mili! Invalid QR." });
+        }
+
+        const currentTime = new Date();
+        let action = "";
+
+        // Agar Entry Time set hai matlab cycle complete ho chuka hai
+        if (request.entryTime) {
+            return res.status(400).json({ success: false, message: "Outpass already Completed!" });
+        }
+
+        // Agar Exit Time NAHI hai, matlab student abhi Gate se bahar ja raha hai (OUT)
+        if (!request.exitTime) {
+            request.exitTime = currentTime;
+            request.gateStatus = 'Out';
+            action = "EXIT (OUT)";
+        } 
+        // Agar Exit Time hai par Entry Time nahi, matlab student wapas aaya hai (IN)
+        else if (request.exitTime && !request.entryTime) {
+            request.entryTime = currentTime;
+            request.gateStatus = 'In';
+            action = "ENTRY (IN)";
+        }
+
+        await request.save();
+        
+        res.json({ 
+            success: true, 
+            message: `Scanned! Student marked ${action} successfully.` 
+        });
+
+    } catch (err) {
+        console.error("QR Scan Update Error:", err);
+        res.status(500).json({ success: false, message: "Server me problem hai QR process karte waqt." });
+    }
+});
+
+/**
+ * 3. Manual Button Click Gate Status Update
  */
 router.post('/update-gate', async (req, res) => {
     const { requestId, gateStatus } = req.body;
 
     try {
         let updateData = { gateStatus: gateStatus };
-
-        // --- TIME LOGIC ---
         const currentTime = new Date();
         
         if (gateStatus === 'Out') {
-            // Jab Guard "Mark Exit" dabaye
             updateData.exitTime = currentTime; 
         } 
         else if (gateStatus === 'In') {
-            // Jab Guard "Mark Entry" dabaye
             updateData.entryTime = currentTime; 
         }
 
-        // Database mein record update karein
         const updatedRequest = await LeaveRequest.findByIdAndUpdate(
             requestId, 
             updateData, 
@@ -54,8 +92,6 @@ router.post('/update-gate', async (req, res) => {
             return res.status(404).json({ success: false, message: "Request nahi mili!" });
         }
 
-        console.log(`Gate Activity Recorded: ${gateStatus} for Request ID: ${requestId}`);
-        
         res.json({ 
             success: true, 
             message: `Student marked ${gateStatus} successfully!`,
