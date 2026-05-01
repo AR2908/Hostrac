@@ -124,13 +124,35 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); backgr
 .close-btn:hover { color: var(--danger); }
 
 /* =========================================================
-   📱 MOBILE LAYOUT (Premium Bottom App Bar)
+   📱 MOBILE LAYOUT (100% Native Body Scroll - NO ATKANA)
    ========================================================= */
 @media screen and (max-width: 768px) {
-    body { flex-direction: column; }
     
-    /* 1. Sidebar becomes a Slim Top Header */
-    .sidebar { width: 100%; height: 70px; padding: 0 20px; flex-direction: row; align-items: center; justify-content: space-between; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    /* 1. Body ko natural scroll karne do */
+    body { 
+        flex-direction: column; 
+        height: auto !important; 
+        overflow-y: auto !important; 
+        overflow-x: hidden !important;
+        /* Menu ke neeche content na dabbe isliye top aur bottom me jagah chhodi hai */
+        padding-top: 70px !important; 
+        padding-bottom: 70px !important; 
+    }
+    
+    /* 2. Top Header Fixed */
+    .sidebar { 
+        position: fixed; 
+        top: 0; left: 0;
+        width: 100%; 
+        height: 70px; 
+        padding: 0 20px; 
+        flex-direction: row; 
+        align-items: center; 
+        justify-content: space-between; 
+        z-index: 1000; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        border-radius: 0; 
+    }
     .sidebar .logo-area { flex-direction: row; align-items: center; }
     .sidebar .logo { font-size: 22px; margin: 0; }
     .sidebar .logo-sub, .user-badge { display: none; }
@@ -138,23 +160,56 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); backgr
     .logout { border: none; padding: 0; margin: 0; }
     .logout a { padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border-radius: 10px; }
     .logout a .icon { margin: 0; font-size: 16px; }
-    .logout a .text { display: none; } /* Hide logout text on mobile */
+    .logout a .text { display: none; } 
     
-    /* 2. Nav becomes a Bottom App Bar */
-    nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: white; display: flex; flex-direction: row; justify-content: space-around; align-items: center; padding: 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); z-index: 1000; border-top: 1px solid #e2e8f0; }
+    /* 3. Bottom App Bar Fixed */
+    nav { 
+        position: fixed; 
+        bottom: 0; left: 0; 
+        width: 100%; 
+        height: 70px; 
+        background: white; 
+        display: flex; 
+        flex-direction: row; 
+        justify-content: space-around; 
+        align-items: center; 
+        padding: 0; 
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.06); 
+        z-index: 1000; 
+        border-top: 1px solid #e2e8f0; 
+    }
     
     nav a { flex-direction: column; justify-content: center; padding: 8px; font-size: 11px; color: var(--text-dim); background: transparent !important; box-shadow: none !important; border-radius: 0; flex: 1; text-align: center; height: 100%; gap: 4px; }
     nav a .icon { margin: 0; font-size: 20px; width: auto; }
     nav a.active { color: var(--primary) !important; font-weight: 700; border-top: 3px solid var(--primary); background: #f8fafc !important; }
     
-    /* 3. Main Body Scroll Fix */
-    .main { height: calc(100vh - 140px); /* Total height minus top and bottom bars */ padding: 20px 15px; }
+    /* 4. Main Content Scroll Fix (Dabbe ka bandhan tod diya) */
+    .main { 
+        position: relative !important; /* Fixed hata diya */
+        top: 0 !important;
+        left: 0 !important;
+        width: 100%;
+        height: auto !important; 
+        overflow: visible !important; 
+        padding: 15px !important; 
+    }
     
+    /* Responsive tweaks */
     .stats-grid { grid-template-columns: 1fr; gap: 15px; }
-    .section { padding: 20px; border-radius: 16px; }
+    #panel-dashboard .stats-grid, .stats-grid[style*="repeat(3"] { grid-template-columns: repeat(3, 1fr) !important; gap: 10px; }
+    .section { padding: 20px; border-radius: 16px; margin-bottom: 20px; }
     .grid-form { grid-template-columns: 1fr; }
     .grid-form > * { grid-column: 1 / -1 !important; }
     
-    /* Guard Scanner Mobile Fix */
     #reader { width: 100% !important; border-radius: 12px; overflow: hidden; }
 }
+
+/* Guard specific navbar fix */
+.top-navbar { background: var(--sidebar-bg); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.top-navbar .logo { font-size: 20px; font-weight: 800; }
+.top-navbar .logo span { color: var(--primary); }
+.top-navbar .user-info { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600;}
+.top-navbar .logout-btn { background: rgba(239,68,68,0.2); color: #fca5a5; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s;}
+.mobile-tabs { display: flex; background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--card-shadow); margin-bottom: 20px; border: 1px solid #e2e8f0;}
+.mobile-tabs a { flex: 1; text-align: center; padding: 12px; color: var(--text-dim); font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.3s; }
+.mobile-tabs a.active { color: var(--primary); background: #f8fafc; border-bottom: 3px solid var(--primary); }
