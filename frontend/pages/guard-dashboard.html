@@ -10,70 +10,75 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
-
-    <!-- Guard Specific Styles handled inside style.css now -->
 </head>
 <body>
 
-    <!-- TOP NAVBAR FOR GUARD -->
-    <div class="top-navbar">
-        <div class="logo">HOS<span>TRAC</span></div>
-        <div class="user-info">
-            <span id="guardName" style="color: #cbd5e1;">Loading...</span>
-            <a onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="logo">HOST<span>RAC</span></div>
+            <div class="logo-sub">Security Control</div>
+        </div>
+        
+        <div class="user-badge">
+            <div class="name" id="guardName">Loading...</div>
+            <div class="role">🛡️ Gate Security</div>
+        </div>
+        
+        <nav>
+            <a class="active" onclick="showPanel('gate', this)"><i class="fas fa-door-open icon"></i> <span class="nav-text">Scanner</span></a>
+            <a onclick="showPanel('logs', this)"><i class="fas fa-clipboard-list icon"></i> <span class="nav-text">Logs</span></a>
+        </nav>
+        
+        <div class="logout">
+            <a onclick="logout()"><i class="fas fa-sign-out-alt icon"></i> <span class="text">Logout</span></a>
         </div>
     </div>
 
-    <div class="main" style="padding-top: 10px;">
+    <div class="main">
         
-        <!-- MOBILE TABS -->
-        <div class="mobile-tabs">
-            <a class="active" onclick="showPanel('gate', this)"><i class="fas fa-door-open"></i> Gate Control</a>
-            <a onclick="showPanel('logs', this)"><i class="fas fa-clipboard-list"></i> Logs</a>
-        </div>
-
         <!-- MAIN GATE PANEL -->
         <div id="panel-gate" class="panel active">
             
-            <div class="page-header" style="margin-bottom: 15px;">
-                <h1 style="font-size: 20px;">Gate Movement</h1>
+            <div class="page-header">
+                <h1>Gate Control</h1>
+                <p>Scan QR codes and monitor movement</p>
             </div>
 
             <!-- STATS GRID -->
-            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 15px;">
                 <div class="stat-card blue" style="padding: 15px 10px; text-align: center;">
-                    <div class="label" style="font-size: 11px;">Approved</div>
-                    <div class="value" id="countApproved" style="font-size: 22px;">0</div>
+                    <div class="label">Approved</div>
+                    <div class="value" id="countApproved" style="font-size: 24px;">0</div>
                 </div>
                 <div class="stat-card red" style="padding: 15px 10px; text-align: center;">
-                    <div class="label" style="font-size: 11px;">OUT</div>
-                    <div class="value" id="countOut" style="font-size: 22px;">0</div>
+                    <div class="label">OUT</div>
+                    <div class="value" id="countOut" style="font-size: 24px;">0</div>
                 </div>
                 <div class="stat-card green" style="padding: 15px 10px; text-align: center;">
-                    <div class="label" style="font-size: 11px;">IN</div>
-                    <div class="value" id="countIn" style="font-size: 22px;">0</div>
+                    <div class="label">IN</div>
+                    <div class="value" id="countIn" style="font-size: 24px;">0</div>
                 </div>
             </div>
 
             <!-- QR SCANNER SECTION -->
             <div class="section" style="border: 2px solid var(--primary); background: #f8faff;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <h3 style="color: var(--primary); margin: 0; font-size: 16px;"><i class="fas fa-camera"></i> Quick QR Scan</h3>
-                    <button id="toggleScanner" class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="startScanner()"><i class="fas fa-qrcode"></i> Open Camera</button>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <h3 style="color: var(--primary); margin: 0; font-size: 16px;"><i class="fas fa-camera"></i> Quick Scan</h3>
+                    <button id="toggleScanner" class="btn btn-primary" style="padding: 10px 15px; font-size: 13px;" onclick="startScanner()"><i class="fas fa-qrcode"></i> Open Camera</button>
                 </div>
                 
                 <div id="reader" style="width: 100%; max-width: 100%; margin: 0 auto; overflow: hidden; border-radius: 12px; display: none;"></div>
-                <div id="scanResult" style="text-align: center; margin-top: 10px; color: var(--success); font-weight: bold; font-size: 14px;"></div>
+                <div id="scanResult" style="text-align: center; margin-top: 15px; color: var(--success); font-weight: bold; font-size: 15px;"></div>
             </div>
 
             <!-- AUTHORIZED MOVEMENTS TABLE -->
-            <div class="section" style="background: transparent; padding: 0; box-shadow: none; border: none;">
+            <div class="section" style="padding: 20px 0 0 0; border: none; box-shadow: none; background: transparent;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin: 0; font-size: 16px;">Live Gate Records</h3>
-                    <button class="btn" style="background: white; border: 1px solid #e2e8f0; padding: 6px 12px; font-size: 12px; color: var(--text-main);" onclick="loadApprovedLeaves()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <h3 style="margin: 0; font-size: 18px;">Live Gate Records</h3>
+                    <button class="btn" style="background: white; border: 1px solid #e2e8f0; padding: 8px 15px; color: var(--text-main);" onclick="loadApprovedLeaves()"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
                 
-                <div class="table-responsive">
+                <div class="table-responsive" style="background: white; border-radius: 16px; box-shadow: var(--card-shadow); border: 1px solid #e2e8f0;">
                     <table>
                         <thead>
                             <tr>
@@ -91,7 +96,18 @@
         </div>
 
         <!-- LOGS PANEL -->
-    
+        <div id="panel-logs" class="panel">
+            <div class="page-header">
+                <h1>Movement Logs</h1>
+            </div>
+            <div class="section" style="text-align: center; padding: 60px 20px;">
+                <i class="fas fa-tools" style="font-size: 45px; color: #cbd5e1; margin-bottom: 20px;"></i>
+                <p style="color: var(--text-dim); font-weight: 500; font-size: 16px;">Daily log summary feature coming soon...</p>
+            </div>
+        </div>
+
+    </div>
+
     <script src="../js/guard.js"></script>
     <script src="../js/login.js"></script>
 </body>
