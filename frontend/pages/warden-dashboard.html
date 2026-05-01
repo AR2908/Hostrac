@@ -36,18 +36,20 @@
     </div>
 
     <div class="main">
-        <div class="stats-grid">
-            <div class="stat-card blue">
-                <div class="label">TOTAL</div>
-                <div class="value" id="count-total">0</div>
+        
+        <!-- COMPACT STATS GRID (3 in a row for Mobile) -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div class="stat-card blue" style="padding: 15px 10px; text-align: center;">
+                <div class="label" style="font-size: 11px;">Total</div>
+                <div class="value" id="count-total" style="font-size: 24px;">0</div>
             </div>
-            <div class="stat-card red">
-                <div class="label">OUT</div>
-                <div class="value" id="count-out">0</div>
+            <div class="stat-card red" style="padding: 15px 10px; text-align: center;">
+                <div class="label" style="font-size: 11px;">OUT</div>
+                <div class="value" id="count-out" style="font-size: 24px;">0</div>
             </div>
-            <div class="stat-card green">
-                <div class="label">IN</div>
-                <div class="value" id="count-in">0</div>
+            <div class="stat-card green" style="padding: 15px 10px; text-align: center;">
+                <div class="label" style="font-size: 11px;">IN</div>
+                <div class="value" id="count-in" style="font-size: 24px;">0</div>
             </div>
         </div>
 
