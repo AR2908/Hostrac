@@ -23,6 +23,16 @@ function showPanel(id, el) {
     if(id === 'gate') loadApprovedLeaves();
 }
 
+function onScanSuccess(decodedText, decodedResult) {
+    
+    // 🔊 1. Sound Play Karne Ka Code (Path apne hisaab se set kar lein)
+    const scanSound = new Audio('../qrsound.mp3'); 
+    scanSound.play().catch(err => console.log("Sound play hone me error:", err));
+
+    // 📱 2. (Bonus) Phone ko Vibrate karne ka code! (200 milliseconds)
+    if ("vibrate" in navigator) {
+        navigator.vibrate(200); 
+    }
 async function loadApprovedLeaves() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/guard/approved`);
@@ -50,7 +60,7 @@ async function loadApprovedLeaves() {
                 actionHtml = `---`;
                 inCount++;
             }
-
+console.log("Scan Result: ", decodedText);
             tbody.innerHTML += `
                 <tr>
                     <td><b>${req.studentId.name}</b></td>
@@ -137,6 +147,7 @@ async function onScanSuccess(decodedText) {
         stopScanner();
     }
 }
+
 
 function logout() {
     localStorage.clear();
