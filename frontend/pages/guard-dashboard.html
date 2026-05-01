@@ -5,162 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Security Guard | HOSTRAC</title>
     
-    <!-- Icons & Styling -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style/style.css">
     
-    <!-- QR Code & Scanner Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
-    <!-- Mobile Override Styles (To fix sidebar issues and make it App-like) -->
-    <style>
-        body { margin: 0; padding: 0; background: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* Force hide old sidebar and reset main area */
-        .sidebar { display: none !important; }
-        .main { margin-left: 0 !important; width: 100% !important; padding: 10px !important; box-sizing: border-box; }
-        
-        /* New Premium Top Navbar */
-        .top-navbar {
-            background: #2d3436;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 4px solid #6c5ce7;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .top-navbar .logo { font-size: 22px; font-weight: 800; letter-spacing: 1px; }
-        .top-navbar .logo span { color: #6c5ce7; }
-        .top-navbar .user-info { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600;}
-        .top-navbar .logout-btn { background: #ff7675; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; cursor: pointer; }
-        
-        /* Mobile Tabs for Navigation */
-        .mobile-tabs {
-            display: flex;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            margin-top: 10px;
-        }
-        .mobile-tabs a {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            color: #636e72;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-        .mobile-tabs a.active {
-            color: #6c5ce7;
-            border-bottom: 3px solid #6c5ce7;
-            background: #f8f9fa;
-        }
-
-        /* Stats Grid Mobile Fix */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .stat-card { padding: 12px 5px; text-align: center; border-radius: 10px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .stat-card.blue { background: linear-gradient(135deg, #0984e3, #74b9ff); }
-        .stat-card.red { background: linear-gradient(135deg, #d63031, #ff7675); }
-        .stat-card.green { background: linear-gradient(135deg, #00b894, #55efc4); }
-        .stat-card .label { font-size: 11px; opacity: 0.9; margin-bottom: 5px; font-weight: 600; }
-        .stat-card .value { font-size: 20px; font-weight: bold; }
-
-        /* Scanner Box UI */
-        .scanner-box {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border: 2px solid #6c5ce7;
-        }
-
-        /* Responsive Table Wrapper */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        table { width: 100%; min-width: 500px; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
-        th { background: #f8f9fa; color: #2d3436; }
-    </style>
+    <!-- Guard Specific Styles handled inside style.css now -->
 </head>
 <body>
 
-    <!-- NEW TOP NAVBAR (Replaces Sidebar) -->
+    <!-- TOP NAVBAR FOR GUARD -->
     <div class="top-navbar">
         <div class="logo">HOS<span>TRAC</span></div>
         <div class="user-info">
-            <span id="guardName">Loading...</span>
+            <span id="guardName" style="color: #cbd5e1;">Loading...</span>
             <a onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i></a>
         </div>
     </div>
 
-    <div class="main">
+    <div class="main" style="padding-top: 10px;">
         
-        <!-- NEW MOBILE TABS -->
+        <!-- MOBILE TABS -->
         <div class="mobile-tabs">
             <a class="active" onclick="showPanel('gate', this)"><i class="fas fa-door-open"></i> Gate Control</a>
-            <a onclick="showPanel('logs', this)"><i class="fas fa-list"></i> Logs</a>
+            <a onclick="showPanel('logs', this)"><i class="fas fa-clipboard-list"></i> Logs</a>
         </div>
 
         <!-- MAIN GATE PANEL -->
         <div id="panel-gate" class="panel active">
             
             <div class="page-header" style="margin-bottom: 15px;">
-                <h2 style="margin: 0; font-size: 20px; color: #2d3436;">Gate Movement</h2>
+                <h1 style="font-size: 20px;">Gate Movement</h1>
             </div>
 
             <!-- STATS GRID -->
-            <div class="stats-grid">
-                <div class="stat-card blue">
-                    <div class="label">Approved</div>
-                    <div class="value" id="countApproved">0</div>
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <div class="stat-card blue" style="padding: 15px 10px; text-align: center;">
+                    <div class="label" style="font-size: 11px;">Approved</div>
+                    <div class="value" id="countApproved" style="font-size: 22px;">0</div>
                 </div>
-                <div class="stat-card red">
-                    <div class="label">OUT</div>
-                    <div class="value" id="countOut">0</div>
+                <div class="stat-card red" style="padding: 15px 10px; text-align: center;">
+                    <div class="label" style="font-size: 11px;">OUT</div>
+                    <div class="value" id="countOut" style="font-size: 22px;">0</div>
                 </div>
-                <div class="stat-card green">
-                    <div class="label">IN</div>
-                    <div class="value" id="countIn">0</div>
+                <div class="stat-card green" style="padding: 15px 10px; text-align: center;">
+                    <div class="label" style="font-size: 11px;">IN</div>
+                    <div class="value" id="countIn" style="font-size: 22px;">0</div>
                 </div>
             </div>
 
             <!-- QR SCANNER SECTION -->
-            <div class="scanner-box">
+            <div class="section" style="border: 2px solid var(--primary); background: #f8faff;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <h3 style="color: #2d3436; margin: 0; font-size: 16px;"><i class="fas fa-camera"></i> Quick QR Scan</h3>
-                    <button id="toggleScanner" class="btn" style="background: #6c5ce7; color: #fff; padding: 8px 12px; font-size: 12px; border-radius: 8px; border: none;" onclick="startScanner()">Open Camera</button>
+                    <h3 style="color: var(--primary); margin: 0; font-size: 16px;"><i class="fas fa-camera"></i> Quick QR Scan</h3>
+                    <button id="toggleScanner" class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="startScanner()"><i class="fas fa-qrcode"></i> Open Camera</button>
                 </div>
                 
-                <!-- Camera Display Area -->
-                <div id="reader" style="width: 100%; max-width: 100%; margin: 0 auto; overflow: hidden; border-radius: 10px; display: none;"></div>
-                
-                <div id="scanResult" style="text-align: center; margin-top: 10px; color: #27ae60; font-weight: bold; font-size: 14px;"></div>
+                <div id="reader" style="width: 100%; max-width: 100%; margin: 0 auto; overflow: hidden; border-radius: 12px; display: none;"></div>
+                <div id="scanResult" style="text-align: center; margin-top: 10px; color: var(--success); font-weight: bold; font-size: 14px;"></div>
             </div>
 
-            <!-- AUTHORIZED MOVEMENTS TABLE SECTION -->
-            <div class="section" style="background: transparent; padding: 0; box-shadow: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0; font-size: 16px; color: #2d3436;">Gate Records</h3>
-                    <button class="btn btn-primary" style="padding: 6px 10px; font-size: 12px; border-radius: 6px;" onclick="loadApprovedLeaves()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            <!-- AUTHORIZED MOVEMENTS TABLE -->
+            <div class="section" style="background: transparent; padding: 0; box-shadow: none; border: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 16px;">Live Gate Records</h3>
+                    <button class="btn" style="background: white; border: 1px solid #e2e8f0; padding: 6px 12px; font-size: 12px; color: var(--text-main);" onclick="loadApprovedLeaves()"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
                 
                 <div class="table-responsive">
@@ -174,29 +84,14 @@
                                 <th style="text-align:center;">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="guardTableBody">
-                            <!-- Data will be loaded here via JS -->
-                        </tbody>
+                        <tbody id="guardTableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
         <!-- LOGS PANEL -->
-        <div id="panel-logs" class="panel">
-            <div class="page-header" style="margin-bottom: 15px;">
-                <h2 style="margin: 0; font-size: 20px; color: #2d3436;">Movement Logs</h2>
-            </div>
-            <div class="section" style="background: white; border-radius: 15px; padding: 30px;">
-                <p style="color: #636e72; text-align: center; margin: 0;">
-                    Daily log summary feature coming soon...
-                </p>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- JavaScript Files -->
+    
     <script src="../js/guard.js"></script>
     <script src="../js/login.js"></script>
 </body>
