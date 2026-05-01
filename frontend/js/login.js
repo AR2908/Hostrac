@@ -1,13 +1,27 @@
 /**
- * Global Login & Logout Logic (Updated for QR Code Safety)
+ * HOSTRAC - Premium Login & Animation Logic
  */
 
-const BASE_URL = "https://hostrac.onrender.com"; // yaha apna backend URL
+const BASE_URL = "https://hostrac.onrender.com"; // Yaha apna backend URL
 
+// ==========================================
+// 1. LOGIN API LOGIC
+// ==========================================
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const role = document.getElementById('role').value;
+    const btn = document.getElementById('loginBtn');
+
+    if (!role) {
+        alert("Please select your role first!");
+        return;
+    }
+
+    // Button par loading effect
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+    btn.disabled = true;
 
     try {
         const res = await fetch(`${BASE_URL}/api/auth/login`, {
@@ -21,42 +35,96 @@ async function login() {
         if (data.success) {
             let userData = data.user;
 
-            // 🚀 ULTIMATE FIX: Agar backend '_id' ki jagah sirf 'id' bhej raha hai, toh hum use fix kar lenge
-            if (!userData._id && userData.id) {
-                userData._id = userData.id;
-            }
+            // ID fix for backend
+            if (!userData._id && userData.id) userData._id = userData.id;
 
-            // Debugging ke liye (Browser ke Console me dikhega ki ID aayi ya nahi)
-            console.log("✅ Login Success! User Data:", userData);
-
-            // Local Storage me save karna
             localStorage.setItem('user', JSON.stringify(userData));
 
-            // Redirect based on role
-            if (userData.role === 'admin') {
-                window.location.href = 'admin-dashboard.html';
-            } else if (userData.role === 'warden') {
-                window.location.href = 'warden-dashboard.html';
-            } else if (userData.role === 'guard') {
-                window.location.href = 'guard-dashboard.html';
-            } else {
-                window.location.href = 'student-dashboard.html';
-            }
+            // Dashboard redirection
+            if (userData.role === 'admin') window.location.href = 'admin-dashboard.html';
+            else if (userData.role === 'warden') window.location.href = 'warden-dashboard.html';
+            else if (userData.role === 'guard') window.location.href = 'guard-dashboard.html';
+            else window.location.href = 'student-dashboard.html';
 
         } else {
             alert("❌ Invalid Credentials! " + (data.message || ""));
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
-
     } catch (err) {
         console.error("Login Error:", err);
-        alert("Connection Error! Backend not reachable");
+        alert("Connection Error! Backend is not reachable.");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 }
 
-// --- LOGOUT FUNCTION ---
 function logout() {
     if (confirm("Do you want to logout?")) {
         localStorage.removeItem('user');
         window.location.href = 'login.html';
     }
 }
+
+// ==========================================
+// 2. PARTICLE ANIMATION LOGIC (From Landing)
+// ==========================================
+const canvas = document.getElementById('bgCanvas');
+if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function initCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2.5;
+            this.speedX = Math.random() * 0.4 - 0.2;
+            this.speedY = Math.random() * 0.4 - 0.2;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0) this.reset();
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function setupParticles() {
+        particles = [];
+        for (let i = 0; i < 120; i++) particles.push(new Particle());
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => { initCanvas(); setupParticles(); });
+    initCanvas();
+    setupParticles();
+    animate();
+}
+
+// ==========================================
+// 3. SECURITY LOGIC
+// ==========================================
+document.addEventListener('contextmenu', (e) => { e.preventDefault(); });
+document.onkeydown = function(e) {
+    if(e.keyCode == 123) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+};
