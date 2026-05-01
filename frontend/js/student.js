@@ -143,8 +143,8 @@ async function loadMyHistory() {
                 
                 const entryRow = `
                     <tr style="background-color: #f0fff4;">
-                        <td>${h.reason}</td>
                         <td>${leaveDateStr}</td>
+                        <td>${h.reason}</td>
                         <td><b style="color: #27ae60">COMPLETED</b></td>
                         <td>
                             <div style="line-height: 1.4; text-align: left;">
