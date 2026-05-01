@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="sidebar">
-    <div>
+    <div class="logo-area">
         <div class="logo">HOST<span>RAC</span></div>
         <div class="logo-sub">Student Portal</div>
     </div>
@@ -21,13 +21,13 @@
     </div>
     
     <nav>
-        <a class="active" onclick="showPanel('dashboard', this)"><i class="fas fa-home icon"></i> Dashboard</a>
-        <a onclick="showPanel('apply', this)"><i class="fas fa-edit icon"></i> Apply Outpass</a>
-        <a onclick="showPanel('history', this)"><i class="fas fa-history icon"></i> Full History</a>
+        <a class="active" onclick="showPanel('dashboard', this)"><i class="fas fa-home icon"></i> <span class="nav-text">Dashboard</span></a>
+        <a onclick="showPanel('apply', this)"><i class="fas fa-edit icon"></i> <span class="nav-text">Apply Pass</span></a>
+        <a onclick="showPanel('history', this)"><i class="fas fa-history icon"></i> <span class="nav-text">History</span></a>
     </nav>
     
     <div class="logout">
-        <a onclick="logout()"><i class="fas fa-sign-out-alt icon"></i> Logout</a>
+        <a onclick="logout()"><i class="fas fa-sign-out-alt icon"></i> <span class="text">Logout</span></a>
     </div>
 </div>
 
