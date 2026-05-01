@@ -164,8 +164,9 @@ async function loadMyHistory() {
             } else {
                 const waitingRow = `
                     <tr>
-                        <td>${h.reason}</td>
+                        
                         <td>${leaveDateStr}</td>
+                        <td>${h.reason}</td>
                         <td><b style="color: ${statusColor}">${displayStatus}</b></td>
                         <td><b style="color:#b2bec3">Not Started</b></td>
                     </tr>`;
