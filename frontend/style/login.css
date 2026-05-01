@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+:root {
+    --primary: #6c63ff;
+    --accent: #00f2fe;
+    --deep-bg: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --text-main: #ffffff;
+    --text-dim: #a0aec0;
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+body {
+    background: var(--deep-bg);
+    color: var(--text-main);
+    overflow: hidden; /* Strict NO SCROLL for mobile app feel */
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background Canvas positioning */
+#bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+}
+
+.login-wrapper {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+/* Glassmorphism Card Design */
+.glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    padding: 45px 35px;
+    border-radius: 35px;
+    border: 1px solid var(--glass-border);
+    width: 100%;
+    max-width: 420px; /* Perfect for mobile and PC */
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    text-align: center;
+    animation: floatIn 0.8s ease-out;
+}
+
+@keyframes floatIn {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-header { margin-bottom: 35px; }
+
+.logo { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 5px; }
+.logo span { color: var(--accent); text-shadow: 0 0 15px rgba(0, 242, 254, 0.5); }
+.login-header p { color: var(--text-dim); font-size: 14px; }
+
+.login-form { display: flex; flex-direction: column; gap: 20px; }
+
+.input-group { position: relative; display: flex; align-items: center; }
+
+.input-group .icon {
+    position: absolute;
+    left: 20px;
+    color: var(--text-dim);
+    font-size: 16px;
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 16px 16px 16px 50px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    color: var(--text-main);
+    font-size: 15px;
+    outline: none;
+    transition: var(--transition);
+    appearance: none;
+}
+
+.input-group select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px top 50%;
+    background-size: 12px auto;
+    cursor: pointer;
+}
+
+.input-group select option { background: #1e1e2f; color: white; }
+
+.input-group input:focus, .input-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.input-group input:focus ~ .icon, .input-group select:focus ~ .icon {
+    color: var(--accent);
+}
+
+.btn-main {
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+    box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+}
+
+.btn-main:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 242, 254, 0.4);
+}
+
+.login-footer { margin-top: 30px; }
+
+.login-footer a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14px;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.login-footer a:hover { color: var(--accent); }
+
+/* Mobile Optimization */
+@media (max-width: 480px) {
+    .glass-card { padding: 35px 25px; border-radius: 25px; }
+    .logo { font-size: 32px; }
+    .btn-main { padding: 15px; font-size: 15px; }
+}
