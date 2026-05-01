@@ -5,6 +5,7 @@
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 let html5QrCode;
+const scanSound = new Audio('../qrsound.mp3');
 
 // Authentication Check
 if (!user || user.role !== 'guard') {
@@ -96,7 +97,14 @@ async function startScanner() {
         
         html5QrCode = new Html5Qrcode("reader");
         const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
+        // --- BROWSER AUDIO UNLOCK TRICK ---
+        // Button click hote hi ek micro-second ke liye sound play-pause karein
+        scanSound.play().then(() => {
+            scanSound.pause();
+            scanSound.currentTime = 0;
+        }).catch(err => console.log("Audio unlock pending:", err));
+        // -----------------------------------
+        
         html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
     } else {
         stopScanner();
@@ -114,16 +122,16 @@ function stopScanner() {
 
 // FINAL FIXED SCAN SUCCESS FUNCTION
 async function onScanSuccess(decodedText) {
-    // 🔊 1. Play Sound & Vibrate FIRST
+    // 🔊 1. Play Sound & Vibrate
     try {
-        const scanSound = new Audio('../qrsound.mp3'); 
-        scanSound.play().catch(err => console.log("Sound play error (Browser Auto-play block ho sakta hai):", err));
+        scanSound.currentTime = 0; // Sound ko wapas start pe laye
+        scanSound.play(); // Play kare
         
         if ("vibrate" in navigator) {
             navigator.vibrate(200); 
         }
     } catch (e) {
-        console.error("Audio/Vibration Error:", e);
+        console.error("Audio Error:", e);
     }
 
     try {
