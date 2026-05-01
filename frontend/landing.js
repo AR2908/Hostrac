@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -52,7 +51,7 @@ function reveal() {
     });
 }
 
-// Initializing
+// Initializing Animations & Listeners
 window.addEventListener('scroll', reveal);
 window.addEventListener('resize', () => { initCanvas(); setupParticles(); });
 
@@ -61,7 +60,7 @@ setupParticles();
 animate();
 reveal();
 
-
+// Smooth Scrolling for Anchors
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -71,24 +70,21 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Security Locks
 document.addEventListener('contextmenu', (e) => {
     e.preventDefault();
-    alert("Right-click is disabled for security reasons!");
 });
+
 document.onkeydown = function(e) {
-    // F12 key block karein
     if(e.keyCode == 123) {
         return false;
     }
-    // Ctrl+Shift+I (Inspect) block karein
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
         return false;
     }
-    // Ctrl+Shift+J (Console) block karein
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
         return false;
     }
-    // Ctrl+U (View Source) block karein
     if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
         return false;
     }
