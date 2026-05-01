@@ -229,59 +229,51 @@ setInterval(loadMyHistory, 10000);
 window.onload = loadMyHistory;
 
 // ========================================================
-// 🛑 1. PAST DATE BLOCKER (Purani date select nahi hogi)
+// 🛑 1. PAST DATE & 2. DOUBLE APPLY BLOCKER (FIXED)
 // ========================================================
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- 1. Past Date Logic ---
     const leaveInput = document.getElementById('leaveDate');
     const returnInput = document.getElementById('returnDate');
 
     if (leaveInput && returnInput) {
-        // Aaj ki date nikalo (YYYY-MM-DD format me)
         const today = new Date().toISOString().split('T')[0];
-        
-        // Dono input me minimum date aaj ki set kar do (Calendar me purani date disable ho jayegi)
         leaveInput.setAttribute('min', today);
         returnInput.setAttribute('min', today);
 
-        // Logic: Return date hamesha Leave date ke barabar ya uske baad ki honi chahiye
         leaveInput.addEventListener('change', function() {
             returnInput.setAttribute('min', this.value);
         });
     }
-});
 
-// ========================================================
-// 🛑 2. DOUBLE APPLY BLOCKER (Ek ke baad ek apply rokna)
-// ========================================================
-const applyForm = document.getElementById('applyForm');
-
-if (applyForm) {
-    // 'true' likhne se ye validation sabse pehle chalega (API call hone se pehle)
-    applyForm.addEventListener('submit', function(e) {
-        const recentTable = document.getElementById('recentTable');
-        
-        // Agar table me koi record hai, to uski pehli line (latest record) check karo
-        if (recentTable && recentTable.querySelector('tr')) {
-            const latestRecordText = recentTable.querySelector('tr').innerText.toLowerCase();
+    // --- 2. Double Apply Blocker Logic ---
+    // Naya variable naam (myForm) use kiya hai taaki error na aaye
+    const myForm = document.getElementById('applyForm');
+    
+    if (myForm) {
+        myForm.addEventListener('submit', function(e) {
+            const recentTable = document.getElementById('recentTable');
             
-            // Agar status me 'pending', 'approved', ya 'out' hai...
-            const isActive = latestRecordText.includes('pending') || 
-                             latestRecordText.includes('approved') || 
-                             latestRecordText.includes('out');
-            
-            // ...aur wo complete ya reject nahi hua hai
-            const isFinished = latestRecordText.includes('completed') || 
-                               latestRecordText.includes('in') || 
-                               latestRecordText.includes('rejected');
-
-            if (isActive && !isFinished) {
-                // Form ko submit hone se turant rok do aur aage ka logic cancel kar do
-                e.preventDefault(); 
-                e.stopImmediatePropagation(); 
+            if (recentTable && recentTable.querySelector('tr')) {
+                const latestRecordText = recentTable.querySelector('tr').innerText.toLowerCase();
                 
-                alert("⚠️ WARNING: Your last outpass is active ya or pending !");
-                return false;
+                const isActive = latestRecordText.includes('pending') || 
+                                 latestRecordText.includes('approved') || 
+                                 latestRecordText.includes('out');
+                
+                const isFinished = latestRecordText.includes('completed') || 
+                                   latestRecordText.includes('in') || 
+                                   latestRecordText.includes('rejected');
+
+                if (isActive && !isFinished) {
+                    e.preventDefault(); 
+                    e.stopImmediatePropagation(); 
+                    
+                    alert("⚠️ WARNING: Your outpass already acvtive or pending !");
+                    return false;
+                }
             }
-        }
-    }, true); 
-}
+        }, true); 
+    }
+});
