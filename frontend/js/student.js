@@ -61,21 +61,37 @@ async function loadMyHistory() {
                         qrMsg.style.color = "#27ae60";
                     }
                     
-                    // Thoda sa ruk kar QR banayenge taaki browser crash na ho
-                    setTimeout(() => {
-                        new QRCode(qrContainer, {
-                            text: JSON.stringify({ studentId: user._id, requestId: latestRequest._id }),
-                            width: 160,
-                            height: 160,
-                            colorDark : "#000000",
-                            colorLight : "#ffffff"
-                        });
-                    }, 50);
+                    // Error Check: Ensure IDs are present before drawing QR
+                    if (!user._id || !latestRequest._id) {
+                        console.error("Missing Data for QR", user, latestRequest);
+                        qrContainer.innerHTML = "<p style='color:red; font-size:12px;'>Data Error. Please re-login.</p>";
+                    } else {
+                        // Thoda sa ruk kar QR banayenge taaki browser DOM properly load kar le
+                        setTimeout(() => {
+                            try {
+                                const qrElement = document.getElementById('qrcode');
+                                qrElement.innerHTML = ""; // Double check clear
+                                
+                                new QRCode(qrElement, {
+                                    text: JSON.stringify({ studentId: user._id, requestId: latestRequest._id }),
+                                    width: 160,
+                                    height: 160,
+                                    colorDark : "#000000",
+                                    colorLight : "#ffffff",
+                                    correctLevel : QRCode.CorrectLevel.H
+                                });
+                                console.log("✅ QR Code Successfully Generated!");
+                            } catch (error) {
+                                console.error("🚨 QR Generation failed:", error);
+                                qrContainer.innerHTML = "<p style='color:red; font-size:12px;'>QR Render Error.</p>";
+                            }
+                        }, 100);
+                    }
 
                 } 
                 // CASE 2: Still Pending
                 else if (latestRequest.status === 'Pending') {
-                    qrContainer.innerHTML = "<p style='color: #636e72; padding: 20px;'>⏳</p>";
+                    qrContainer.innerHTML = "<p style='color: #636e72; padding: 20px; font-size: 24px; margin: 0;'>⏳</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "Wait for Warden's Approval...";
                         qrMsg.style.color = "#e17055";
@@ -192,7 +208,7 @@ if(applyForm) {
                 alert("✅ Outpass Applied Successfully!");
                 applyForm.reset();
                 showPanel('dashboard', document.querySelector('nav a:first-child'));
-                loadMyHistory(); // Reloads history and generates QR if somehow it's auto-approved
+                loadMyHistory(); 
             } else {
                 alert("❌ Failed: " + data.message);
             }
@@ -208,6 +224,6 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// 10 Second Auto-Refresh so the Student doesn't have to manually refresh to see Warden's Approval
+// 10 Second Auto-Refresh
 setInterval(loadMyHistory, 10000);
 window.onload = loadMyHistory;
