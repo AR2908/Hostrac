@@ -1,5 +1,5 @@
 /**
- * Hostrac - Student Dashboard (Ultimate API QR Logic)
+ * Hostrac - Student Dashboard (Ultimate Case-Insensitive QR Logic)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
@@ -49,35 +49,33 @@ async function loadMyHistory() {
         if (history.length > 0) {
             const latestRequest = history[history.length - 1]; 
             
-            // --- ULTIMATE API QR CODE GENERATION ---
+            // 🚀 STATUS FIX: Status ko hamesha lowercase aur bina space ka bana diya
+            const safeStatus = latestRequest.status ? latestRequest.status.trim().toLowerCase() : "";
+            console.log("Current Status from DB is:", safeStatus); // Debugging
+            
             if (qrContainer) {
                 qrContainer.innerHTML = ""; // Purana data clean karo
                 
-                // CASE 1: Warden Approved, but Student not back yet (IN)
-                if (latestRequest.status === 'Approved' && !latestRequest.entryTime) {
+                // CASE 1: Warden Approved (ab koi error nahi aayegi)
+                if (safeStatus === 'approved' && !latestRequest.entryTime) {
                     
                     if(qrMsg) {
                         qrMsg.innerText = "✅ Approved! Show this QR to the Guard";
                         qrMsg.style.color = "#27ae60";
                     }
                     
-                    // Error Check: Ensure IDs are present
                     if (!user._id || !latestRequest._id) {
-                        console.error("Missing Data for QR", user, latestRequest);
-                        qrContainer.innerHTML = "<p style='color:red; font-size:12px;'>Data Error. Please re-login.</p>";
+                        qrContainer.innerHTML = "<p style='color:red;'>Data Error.</p>";
                     } else {
-                        // ULTIMATE FIX: Direct Image API Approach (No external JS library needed)
                         const qrData = JSON.stringify({ studentId: user._id, requestId: latestRequest._id });
                         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff`;
                         
-                        // Seedha Image tag insert kar diya
                         qrContainer.innerHTML = `<img src="${qrUrl}" alt="Gate Pass QR" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); width: 160px; height: 160px; display: block; margin: 0 auto;">`;
-                        console.log("✅ API QR Successfully Loaded!");
                     }
 
                 } 
                 // CASE 2: Still Pending
-                else if (latestRequest.status === 'Pending') {
+                else if (safeStatus === 'pending') {
                     qrContainer.innerHTML = "<p style='color: #636e72; padding: 20px; font-size: 24px; margin: 0;'>⏳</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "Wait for Warden's Approval...";
@@ -85,14 +83,14 @@ async function loadMyHistory() {
                     }
                 } 
                 // CASE 3: Rejected
-                else if (latestRequest.status === 'Rejected') {
+                else if (safeStatus === 'rejected') {
                     qrContainer.innerHTML = "<p style='color: #d63031; font-size: 40px; margin:0;'>❌</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "Outpass Rejected by Warden";
                         qrMsg.style.color = "#d63031";
                     }
                 } 
-                // CASE 4: Completed (Student is IN)
+                // CASE 4: Completed
                 else {
                     qrContainer.innerHTML = "<p style='color: #27ae60; font-size: 40px; margin:0;'>🏠</p>";
                     if(qrMsg) {
@@ -102,14 +100,12 @@ async function loadMyHistory() {
                 }
             }
 
-            // Notification Audio
-            if (lastRequestStatus !== "" && latestRequest.status !== lastRequestStatus) {
-                bell.play().catch(e => console.log("Audio needs user interaction first."));
+            if (lastRequestStatus !== "" && safeStatus !== lastRequestStatus) {
+                bell.play().catch(e => {});
                 alert(`📢 Update: Your outpass is now ${latestRequest.status.toUpperCase()}`);
             }
-            lastRequestStatus = latestRequest.status;
+            lastRequestStatus = safeStatus;
         } else {
-            // No history yet
             if (qrContainer) qrContainer.innerHTML = "<p style='color:gray;'>No Outpass Applied</p>";
             if (qrMsg) {
                 qrMsg.innerText = "Apply for an outpass to generate QR";
@@ -125,40 +121,28 @@ async function loadMyHistory() {
         if (historyTable) historyTable.innerHTML = '';
 
         if(document.getElementById('statTotal')) document.getElementById('statTotal').innerText = history.length;
-        if(document.getElementById('statActive')) document.getElementById('statActive').innerText = history.filter(h => h.status === 'Approved').length;
+        
+        // Count active using the same case-insensitive logic
+        if(document.getElementById('statActive')) {
+            document.getElementById('statActive').innerText = history.filter(h => h.status && h.status.trim().toLowerCase() === 'approved').length;
+        }
 
         [...history].reverse().forEach((h) => {
-            const statusColor = h.status === 'Approved' ? '#27ae60' : (h.status === 'Rejected' ? '#e74c3c' : '#f39c12');
+            const hStatus = h.status ? h.status.trim().toLowerCase() : "";
+            const statusColor = hStatus === 'approved' ? '#27ae60' : (hStatus === 'rejected' ? '#e74c3c' : '#f39c12');
+            const displayStatus = h.status ? h.status.toUpperCase() : "UNKNOWN";
             const leaveDateStr = new Date(h.leaveDate).toLocaleDateString('en-GB');
 
             if (h.entryTime) {
-                const entryRow = `
-                    <tr style="background-color: #f0fff4;">
-                        <td>${h.reason}</td>
-                        <td>${leaveDateStr}</td>
-                        <td><b style="color: #27ae60">COMPLETED</b></td>
-                        <td><b style="color:#27ae60">IN ✅</b><br><small>${formatDateTime(h.entryTime)}</small></td>
-                    </tr>`;
+                const entryRow = `<tr style="background-color: #f0fff4;"><td>${h.reason}</td><td>${leaveDateStr}</td><td><b style="color: #27ae60">COMPLETED</b></td><td><b style="color:#27ae60">IN ✅</b><br><small>${formatDateTime(h.entryTime)}</small></td></tr>`;
                 if (historyTable) historyTable.innerHTML += entryRow;
                 if (recentTable) recentTable.innerHTML += entryRow;
             } else if (h.exitTime) {
-                const exitRow = `
-                    <tr style="background-color: #fff5f5;">
-                    <td>${h.reason}</td>
-                        <td>${leaveDateStr}</td>
-                        <td><b style="color: ${statusColor}">${h.status}</b></td>
-                        <td><b style="color:#d63031">OUT 🚩</b><br><small>${formatDateTime(h.exitTime)}</small></td>
-                    </tr>`;
+                const exitRow = `<tr style="background-color: #fff5f5;"><td>${h.reason}</td><td>${leaveDateStr}</td><td><b style="color: ${statusColor}">${displayStatus}</b></td><td><b style="color:#d63031">OUT 🚩</b><br><small>${formatDateTime(h.exitTime)}</small></td></tr>`;
                 if (historyTable) historyTable.innerHTML += exitRow;
                 if (recentTable) recentTable.innerHTML += exitRow;
             } else {
-                const waitingRow = `
-                    <tr>
-                        <td>${leaveDateStr}</td>
-                        <td>${h.reason}</td>
-                        <td><b style="color: ${statusColor}">${h.status}</b></td>
-                        <td><b style="color:#b2bec3">Not Started</b></td>
-                    </tr>`;
+                const waitingRow = `<tr><td>${leaveDateStr}</td><td>${h.reason}</td><td><b style="color: ${statusColor}">${displayStatus}</b></td><td><b style="color:#b2bec3">Not Started</b></td></tr>`;
                 if (historyTable) historyTable.innerHTML += waitingRow;
                 if (recentTable) recentTable.innerHTML += waitingRow;
             }
