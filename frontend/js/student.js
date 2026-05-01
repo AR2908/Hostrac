@@ -1,5 +1,5 @@
 /**
- * Hostrac - Student Dashboard (Ultimate Case-Insensitive QR Logic)
+ * Hostrac - Student Dashboard (Final Fix: Showing Both IN/OUT Time)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
@@ -48,33 +48,26 @@ async function loadMyHistory() {
         
         if (history.length > 0) {
             const latestRequest = history[history.length - 1]; 
-            
-            // 🚀 STATUS FIX: Status ko hamesha lowercase aur bina space ka bana diya
             const safeStatus = latestRequest.status ? latestRequest.status.trim().toLowerCase() : "";
-            console.log("Current Status from DB is:", safeStatus); // Debugging
             
             if (qrContainer) {
-                qrContainer.innerHTML = ""; // Purana data clean karo
+                qrContainer.innerHTML = ""; 
                 
-                // CASE 1: Warden Approved (ab koi error nahi aayegi)
+                // CASE 1: Warden Approved
                 if (safeStatus === 'approved' && !latestRequest.entryTime) {
-                    
                     if(qrMsg) {
                         qrMsg.innerText = "✅ Approved! Show this QR to the Guard";
                         qrMsg.style.color = "#27ae60";
                     }
-                    
                     if (!user._id || !latestRequest._id) {
                         qrContainer.innerHTML = "<p style='color:red;'>Data Error.</p>";
                     } else {
                         const qrData = JSON.stringify({ studentId: user._id, requestId: latestRequest._id });
                         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff`;
-                        
                         qrContainer.innerHTML = `<img src="${qrUrl}" alt="Gate Pass QR" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); width: 160px; height: 160px; display: block; margin: 0 auto;">`;
                     }
-
                 } 
-                // CASE 2: Still Pending
+                // CASE 2: Pending
                 else if (safeStatus === 'pending') {
                     qrContainer.innerHTML = "<p style='color: #636e72; padding: 20px; font-size: 24px; margin: 0;'>⏳</p>";
                     if(qrMsg) {
@@ -121,8 +114,6 @@ async function loadMyHistory() {
         if (historyTable) historyTable.innerHTML = '';
 
         if(document.getElementById('statTotal')) document.getElementById('statTotal').innerText = history.length;
-        
-        // Count active using the same case-insensitive logic
         if(document.getElementById('statActive')) {
             document.getElementById('statActive').innerText = history.filter(h => h.status && h.status.trim().toLowerCase() === 'approved').length;
         }
@@ -133,16 +124,47 @@ async function loadMyHistory() {
             const displayStatus = h.status ? h.status.toUpperCase() : "UNKNOWN";
             const leaveDateStr = new Date(h.leaveDate).toLocaleDateString('en-GB');
 
+            // 🚀 ULTIMATE FIX: Jab outpass completed ho, toh dono time dikhayein
             if (h.entryTime) {
-                const entryRow = `<tr style="background-color: #f0fff4;"><td>${h.reason}</td><td>${leaveDateStr}</td><td><b style="color: #27ae60">COMPLETED</b></td><td><b style="color:#27ae60">IN ✅</b><br><small>${formatDateTime(h.entryTime)}</small></td></tr>`;
+                const outTimeDisplay = h.exitTime ? formatDateTime(h.exitTime) : "---";
+                const inTimeDisplay = formatDateTime(h.entryTime);
+                
+                const entryRow = `
+                    <tr style="background-color: #f0fff4;">
+                        <td>${h.reason}</td>
+                        <td>${leaveDateStr}</td>
+                        <td><b style="color: #27ae60">COMPLETED</b></td>
+                        <td>
+                            <div style="line-height: 1.4; text-align: left;">
+                                <span style="color:#d63031; font-size: 11px;"><b>OUT 🚩:</b> ${outTimeDisplay}</span><br>
+                                <span style="color:#27ae60; font-size: 11px;"><b>IN ✅:</b> ${inTimeDisplay}</span>
+                            </div>
+                        </td>
+                    </tr>`;
                 if (historyTable) historyTable.innerHTML += entryRow;
                 if (recentTable) recentTable.innerHTML += entryRow;
-            } else if (h.exitTime) {
-                const exitRow = `<tr style="background-color: #fff5f5;"><td>${h.reason}</td><td>${leaveDateStr}</td><td><b style="color: ${statusColor}">${displayStatus}</b></td><td><b style="color:#d63031">OUT 🚩</b><br><small>${formatDateTime(h.exitTime)}</small></td></tr>`;
+            } 
+            // Jab sirf bahar gaya ho (OUT)
+            else if (h.exitTime) {
+                const exitRow = `
+                    <tr style="background-color: #fff5f5;">
+                        <td>${h.reason}</td>
+                        <td>${leaveDateStr}</td>
+                        <td><b style="color: ${statusColor}">${displayStatus}</b></td>
+                        <td><b style="color:#d63031">OUT 🚩</b><br><small>${formatDateTime(h.exitTime)}</small></td>
+                    </tr>`;
                 if (historyTable) historyTable.innerHTML += exitRow;
                 if (recentTable) recentTable.innerHTML += exitRow;
-            } else {
-                const waitingRow = `<tr><td>${leaveDateStr}</td><td>${h.reason}</td><td><b style="color: ${statusColor}">${displayStatus}</b></td><td><b style="color:#b2bec3">Not Started</b></td></tr>`;
+            } 
+            // Jab abhi tak bahar nahi gaya (Not Started)
+            else {
+                const waitingRow = `
+                    <tr>
+                        <td>${h.reason}</td>
+                        <td>${leaveDateStr}</td>
+                        <td><b style="color: ${statusColor}">${displayStatus}</b></td>
+                        <td><b style="color:#b2bec3">Not Started</b></td>
+                    </tr>`;
                 if (historyTable) historyTable.innerHTML += waitingRow;
                 if (recentTable) recentTable.innerHTML += waitingRow;
             }
@@ -195,6 +217,5 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-// 10 Second Auto-Refresh
 setInterval(loadMyHistory, 10000);
 window.onload = loadMyHistory;
