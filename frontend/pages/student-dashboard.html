@@ -40,16 +40,26 @@
             <p>View your outpass status and recent activity</p>
         </div>
         
-        <div class="stats-grid">
-            <div class="stat-card blue"><div class="label">Total</div><div class="value" id="statTotal">0</div></div>
-            <div class="stat-card green"><div class="label">Approved</div><div class="value" id="statActive">0</div></div>
-            <div class="stat-card red"><div class="label">Late</div><div class="value" id="statLate">0</div></div>
+        <!-- COMPACT STATS GRID (3 in a row like Guard) -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div class="stat-card blue" style="padding: 15px 10px; text-align: center;">
+                <div class="label" style="font-size: 11px;">Total</div>
+                <div class="value" id="statTotal" style="font-size: 24px;">0</div>
+            </div>
+            <div class="stat-card green" style="padding: 15px 10px; text-align: center;">
+                <div class="label" style="font-size: 11px;">Approved</div>
+                <div class="value" id="statActive" style="font-size: 24px;">0</div>
+            </div>
+            <div class="stat-card red" style="padding: 15px 10px; text-align: center;">
+                <div class="label" style="font-size: 11px;">Late</div>
+                <div class="value" id="statLate" style="font-size: 24px;">0</div>
+            </div>
         </div>
 
         <!-- QR CODE SECTION -->
         <div class="section" style="text-align: center; border: 2px solid var(--primary); background: #f8faff;">
             <h3 style="color: var(--primary); margin-bottom: 5px;"><i class="fas fa-qrcode"></i> Your Gate Pass QR</h3>
-            <p id="qrStatusMsg" style="font-weight: 600; color: var(--warning); margin-bottom: 15px; font-size: 14px;">Pending Application...</p>
+            <p id="qrStatusMsg" style="font-weight: 600; color: var(--warning); margin-bottom: 15px; font-size: 14px;">Checking Status...</p>
             
             <div id="qrcode" style="display: flex; justify-content: center; align-items: center; min-height: 180px; background: white; padding: 15px; border-radius: 16px; width: max-content; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
         </div>
@@ -58,7 +68,10 @@
             <div class="section-header"><h3><i class="fas fa-bolt"></i> Recent Activity</h3></div>
             <div class="table-responsive">
                 <table>
-                    <thead><tr><th>Reason</th><th>Date</th><th>Status</th><th>Gate Updates</th></tr></thead>
+                    <thead><tr>
+                        <th>Date</th>
+                        <th>Reason</th>
+                        <th>Status</th><th>Gate Updates</th></tr></thead>
                     <tbody id="recentTable"></tbody>
                 </table>
             </div>
