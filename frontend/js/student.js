@@ -1,5 +1,5 @@
 /**
- * Hostrac - Student Dashboard (Full Updated with QR Logic)
+ * Hostrac - Student Dashboard (Fail-Proof QR Logic)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
@@ -42,37 +42,79 @@ async function loadMyHistory() {
         if (!res.ok) throw new Error("Connection Error");
         
         const history = await res.json();
+        
         const qrContainer = document.getElementById('qrcode');
+        const qrMsg = document.getElementById('qrStatusMsg');
         
         if (history.length > 0) {
             const latestRequest = history[history.length - 1]; 
             
-            // --- QR CODE LOGIC ---
+            // --- BULLETPROOF QR CODE GENERATION ---
             if (qrContainer) {
-                qrContainer.innerHTML = ""; // Puraana QR hatao
-                // Agar status Approved hai aur student abhi tak wapas IN nahi aaya hai
+                qrContainer.innerHTML = ""; // Purana QR clean karo
+                
+                // CASE 1: Warden Approved, but Student not back yet (IN)
                 if (latestRequest.status === 'Approved' && !latestRequest.entryTime) {
-                    new QRCode(qrContainer, {
-                        text: JSON.stringify({ studentId: user._id, requestId: latestRequest._id }),
-                        width: 150,
-                        height: 150
-                    });
                     
-                    const qrMsg = document.getElementById('qrStatusMsg');
-                    if(qrMsg) qrMsg.innerText = "Show this QR at the Gate";
-                } else {
-                    qrContainer.innerHTML = "<p style='font-size:12px; color:gray;'>QR Code will appear when Outpass is Approved</p>";
+                    if(qrMsg) {
+                        qrMsg.innerText = "✅ Approved! Show this QR to the Guard";
+                        qrMsg.style.color = "#27ae60";
+                    }
+                    
+                    // Thoda sa ruk kar QR banayenge taaki browser crash na ho
+                    setTimeout(() => {
+                        new QRCode(qrContainer, {
+                            text: JSON.stringify({ studentId: user._id, requestId: latestRequest._id }),
+                            width: 160,
+                            height: 160,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff"
+                        });
+                    }, 50);
+
+                } 
+                // CASE 2: Still Pending
+                else if (latestRequest.status === 'Pending') {
+                    qrContainer.innerHTML = "<p style='color: #636e72; padding: 20px;'>⏳</p>";
+                    if(qrMsg) {
+                        qrMsg.innerText = "Wait for Warden's Approval...";
+                        qrMsg.style.color = "#e17055";
+                    }
+                } 
+                // CASE 3: Rejected
+                else if (latestRequest.status === 'Rejected') {
+                    qrContainer.innerHTML = "<p style='color: #d63031; font-size: 40px; margin:0;'>❌</p>";
+                    if(qrMsg) {
+                        qrMsg.innerText = "Outpass Rejected by Warden";
+                        qrMsg.style.color = "#d63031";
+                    }
+                } 
+                // CASE 4: Completed (Student is IN)
+                else {
+                    qrContainer.innerHTML = "<p style='color: #27ae60; font-size: 40px; margin:0;'>🏠</p>";
+                    if(qrMsg) {
+                        qrMsg.innerText = "You are currently in the Hostel";
+                        qrMsg.style.color = "#2d3436";
+                    }
                 }
             }
 
-            // Notification Logic
+            // Notification Audio
             if (lastRequestStatus !== "" && latestRequest.status !== lastRequestStatus) {
-                bell.play().catch(e => console.log("Audio needs interaction"));
-                alert(`📢 Status Update: Your outpass is now ${latestRequest.status.toUpperCase()}`);
+                bell.play().catch(e => console.log("Audio needs user interaction first."));
+                alert(`📢 Update: Your outpass is now ${latestRequest.status.toUpperCase()}`);
             }
             lastRequestStatus = latestRequest.status;
+        } else {
+            // No history yet
+            if (qrContainer) qrContainer.innerHTML = "<p style='color:gray;'>No Outpass Applied</p>";
+            if (qrMsg) {
+                qrMsg.innerText = "Apply for an outpass to generate QR";
+                qrMsg.style.color = "#636e72";
+            }
         }
 
+        // --- TABLE LOGIC ---
         const recentTable = document.getElementById('recentTable');
         const historyTable = document.getElementById('historyTable');
         
@@ -150,7 +192,7 @@ if(applyForm) {
                 alert("✅ Outpass Applied Successfully!");
                 applyForm.reset();
                 showPanel('dashboard', document.querySelector('nav a:first-child'));
-                loadMyHistory();
+                loadMyHistory(); // Reloads history and generates QR if somehow it's auto-approved
             } else {
                 alert("❌ Failed: " + data.message);
             }
@@ -166,5 +208,6 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-setInterval(loadMyHistory, 15000);
+// 10 Second Auto-Refresh so the Student doesn't have to manually refresh to see Warden's Approval
+setInterval(loadMyHistory, 10000);
 window.onload = loadMyHistory;
