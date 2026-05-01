@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="sidebar">
-        <div>
+        <div class="logo-area">
             <div class="logo">HOST<span>RAC</span></div>
             <div class="logo-sub">Warden Panel</div>
         </div>
@@ -26,12 +26,12 @@
         </div>
         
         <nav>
-            <a class="active" onclick="showPanel('outpass', this)"><i class="fas fa-envelope-open-text icon"></i> Outpass Requests</a>
-            <a onclick="showPanel('records', this)"><i class="fas fa-clipboard-list icon"></i> Records Directory</a>
+            <a class="active" onclick="showPanel('outpass', this)"><i class="fas fa-envelope-open-text icon"></i> <span class="nav-text">Requests</span></a>
+            <a onclick="showPanel('records', this)"><i class="fas fa-clipboard-list icon"></i> <span class="nav-text">Records</span></a>
         </nav>
         
         <div class="logout">
-            <a onclick="logout()"><i class="fas fa-sign-out-alt icon"></i> Logout</a>
+            <a onclick="logout()"><i class="fas fa-sign-out-alt icon"></i> <span class="text">Logout</span></a>
         </div>
     </div>
 
