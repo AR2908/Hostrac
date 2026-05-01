@@ -1,5 +1,5 @@
 /**
- * Hostrac - Student Dashboard (Fail-Proof QR Logic)
+ * Hostrac - Student Dashboard (Ultimate API QR Logic)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
@@ -49,9 +49,9 @@ async function loadMyHistory() {
         if (history.length > 0) {
             const latestRequest = history[history.length - 1]; 
             
-            // --- BULLETPROOF QR CODE GENERATION ---
+            // --- ULTIMATE API QR CODE GENERATION ---
             if (qrContainer) {
-                qrContainer.innerHTML = ""; // Purana QR clean karo
+                qrContainer.innerHTML = ""; // Purana data clean karo
                 
                 // CASE 1: Warden Approved, but Student not back yet (IN)
                 if (latestRequest.status === 'Approved' && !latestRequest.entryTime) {
@@ -61,31 +61,18 @@ async function loadMyHistory() {
                         qrMsg.style.color = "#27ae60";
                     }
                     
-                    // Error Check: Ensure IDs are present before drawing QR
+                    // Error Check: Ensure IDs are present
                     if (!user._id || !latestRequest._id) {
                         console.error("Missing Data for QR", user, latestRequest);
                         qrContainer.innerHTML = "<p style='color:red; font-size:12px;'>Data Error. Please re-login.</p>";
                     } else {
-                        // Thoda sa ruk kar QR banayenge taaki browser DOM properly load kar le
-                        setTimeout(() => {
-                            try {
-                                const qrElement = document.getElementById('qrcode');
-                                qrElement.innerHTML = ""; // Double check clear
-                                
-                                new QRCode(qrElement, {
-                                    text: JSON.stringify({ studentId: user._id, requestId: latestRequest._id }),
-                                    width: 160,
-                                    height: 160,
-                                    colorDark : "#000000",
-                                    colorLight : "#ffffff",
-                                    correctLevel : QRCode.CorrectLevel.H
-                                });
-                                console.log("✅ QR Code Successfully Generated!");
-                            } catch (error) {
-                                console.error("🚨 QR Generation failed:", error);
-                                qrContainer.innerHTML = "<p style='color:red; font-size:12px;'>QR Render Error.</p>";
-                            }
-                        }, 100);
+                        // ULTIMATE FIX: Direct Image API Approach (No external JS library needed)
+                        const qrData = JSON.stringify({ studentId: user._id, requestId: latestRequest._id });
+                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff`;
+                        
+                        // Seedha Image tag insert kar diya
+                        qrContainer.innerHTML = `<img src="${qrUrl}" alt="Gate Pass QR" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); width: 160px; height: 160px; display: block; margin: 0 auto;">`;
+                        console.log("✅ API QR Successfully Loaded!");
                     }
 
                 } 
