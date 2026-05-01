@@ -89,12 +89,15 @@ async function loadActiveStudents() {
                         </span>
                     </td>
                     <td><span class="${isPaid ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></td>
-                    <td>
-                        <button class="btn" style="background:var(--primary); color:white; padding:5px 10px; font-size:10px; margin-right:5px;" 
-                            onclick="updateFeesStatus('${s._id}', '${nextStatus}')">Mark ${nextStatus}</button>
-                        <button class="btn-danger" style="padding:5px 10px; font-size:10px;" 
-                            onclick="openExitModal('${s._id}')">Mark EX-Student</button>
-                    </td>
+                   
+                    <td style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
+        <i class="fas fa-check-circle"></i> Mark ${nextStatus}
+    </button>
+    <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}')">
+        <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
+    </button>
+</td>
                 </tr>
             `;
         });
