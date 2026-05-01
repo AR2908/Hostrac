@@ -153,6 +153,8 @@ async function updateReq(id, status) {
             body: JSON.stringify({ requestId: id, status })
         });
         if(res.ok) {
+            // Success alert Warden ko dikhane ke liye
+            console.log(`Outpass ${status} successfully`);
             loadOutpass();
             loadRecords(); 
         }
