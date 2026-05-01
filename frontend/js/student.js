@@ -12,7 +12,7 @@ if (!user || user.role !== 'student') {
 } else {
     if(document.getElementById('sidebarName')) document.getElementById('sidebarName').innerText = user.name;
     if(document.getElementById('sidebarRoom')) document.getElementById('sidebarRoom').innerText = "Room: " + (user.roomNo || "N/A");
-    if(document.getElementById('welcomeMsg')) document.getElementById('welcomeMsg').innerText = "Welcome, " + user.name + "!";
+    if(document.getElementById('welcomeMsg')) document.getElementById('welcomeMsg').innerText = "WELCOME, " + user.name + "!";
 }
 
 function formatDateTime(dateString) {
