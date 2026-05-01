@@ -29,7 +29,12 @@ app.use('/api/student', studentRoutes);
 app.use('/api/warden', wardenRoutes);
 app.use('/api/guard', guardRoutes);
 app.use('/api/admin', adminRoutes); // <--- Yeh Nayi Line (Address setup)
-
+app.post('/api/guard/scan', async (req, res) => {
+    const { studentId, requestId } = req.body;
+    // Yahan backend logic aayega jo studentStatus ko IN/OUT switch karega
+    // Note: Iska poora logic guardRoutes.js mein likhna hoga
+    res.json({ success: true, message: "Status Updated via QR" });
+});
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("✅ MongoDB Connected Successfully..."))
