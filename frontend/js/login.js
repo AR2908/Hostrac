@@ -128,3 +128,22 @@ document.onkeydown = function(e) {
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
     if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
 };
+// ==========================================
+// AUTO-LOAD FOOTER COMPONENT
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const footerDiv = document.getElementById('footer-placeholder');
+    
+    if (footerDiv) {
+        // Ye HTML page ki location ke hisaab se footer load karega
+        fetch('footer.html') 
+            .then(response => {
+                if(!response.ok) throw new Error("Footer file not found");
+                return response.text();
+            })
+            .then(htmlData => {
+                footerDiv.innerHTML = htmlData;
+            })
+            .catch(err => console.log("Footer loading info (Ignore if on landing page):", err));
+    }
+});
