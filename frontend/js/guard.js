@@ -12,7 +12,57 @@ if (!guard || guard.role !== 'guard') {
         guardNameDisp.innerText = guard.name;
     }
 }
+let html5QrCode;
 
+async function startScanner() {
+    const reader = document.getElementById('reader');
+    const btn = document.getElementById('toggleScanner');
+    
+    if (reader.style.display === 'none') {
+        reader.style.display = 'block';
+        btn.innerText = "Close Camera";
+        
+        html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+    } else {
+        stopScanner();
+    }
+}
+
+function stopScanner() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('reader').style.display = 'none';
+            document.getElementById('toggleScanner').innerText = "Open Camera";
+        });
+    }
+}
+
+async function onScanSuccess(decodedText) {
+    try {
+        const data = JSON.parse(decodedText); // {studentId, requestId}
+        
+        const res = await fetch(`${API_BASE_URL}/api/guard/scan-qr`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (result.success) {
+            document.getElementById('scanResult').innerText = "✅ " + result.message;
+            loadApprovedLeaves(); // Table refresh karein
+            setTimeout(() => { document.getElementById('scanResult').innerText = ""; }, 3000);
+            stopScanner(); // Scan hone ke baad camera band
+        } else {
+            alert(result.message);
+        }
+    } catch (err) {
+        console.error("Scan Error:", err);
+    }
+}
 // 2. Panel Switcher Logic
 function showPanel(id, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
