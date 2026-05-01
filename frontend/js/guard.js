@@ -39,7 +39,7 @@ async function loadApprovedLeaves() {
             if(!req.studentId) return;
 
             let currentStatus = "Waiting at Gate";
-            let actionHtml = `<button class="btn btn-primary" onclick="markGate('${req._id}', 'Out')">Mark EXIT (OUT)</button>`;
+            let actionHtml = `<button class="btn" style="background:#f52f46; color:white;" onclick="markGate('${req._id}', 'Out')">Mark EXIT (OUT)</button>`;
             
             if (req.exitTime && !req.entryTime) {
                 currentStatus = `<b style="color:#d63031">OUT 🚩</b>`;
