@@ -1,17 +1,19 @@
 /**
- * Hostrac - Security Guard Dashboard (With QR Scanner)
+ * Hostrac - Security Guard Dashboard (With QR Scanner & Sound)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 let html5QrCode;
 
+// Authentication Check
 if (!user || user.role !== 'guard') {
     window.location.href = 'login.html';
 } else {
     if(document.getElementById('guardName')) document.getElementById('guardName').innerText = user.name;
 }
 
+// Panel Toggling
 function showPanel(id, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     const target = document.getElementById('panel-' + id);
@@ -23,16 +25,7 @@ function showPanel(id, el) {
     if(id === 'gate') loadApprovedLeaves();
 }
 
-function onScanSuccess(decodedText, decodedResult) {
-    
-    // 🔊 1. Sound Play Karne Ka Code (Path apne hisaab se set kar lein)
-    const scanSound = new Audio('../qrsound.mp3'); 
-    scanSound.play().catch(err => console.log("Sound play hone me error:", err));
-
-    // 📱 2. (Bonus) Phone ko Vibrate karne ka code! (200 milliseconds)
-    if ("vibrate" in navigator) {
-        navigator.vibrate(200); 
-    }
+// Load Gate Records
 async function loadApprovedLeaves() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/guard/approved`);
@@ -60,7 +53,7 @@ async function loadApprovedLeaves() {
                 actionHtml = `---`;
                 inCount++;
             }
-console.log("Scan Result: ", decodedText);
+
             tbody.innerHTML += `
                 <tr>
                     <td><b>${req.studentId.name}</b></td>
@@ -78,6 +71,7 @@ console.log("Scan Result: ", decodedText);
     } catch (err) { console.error(err); }
 }
 
+// Mark Gate (Manual Button)
 async function markGate(requestId, status) {
     try {
         const res = await fetch(`${API_BASE_URL}/api/guard/update-gate`, {
@@ -114,16 +108,31 @@ function stopScanner() {
         html5QrCode.stop().then(() => {
             document.getElementById('reader').style.display = 'none';
             document.getElementById('toggleScanner').innerText = "Open Camera";
-        });
+        }).catch(err => console.error("Scanner stop error:", err));
     }
 }
 
+// FINAL FIXED SCAN SUCCESS FUNCTION
 async function onScanSuccess(decodedText) {
+    // 🔊 1. Play Sound & Vibrate FIRST
     try {
-        // Scanner ruk jaye success hone par
+        const scanSound = new Audio('../qrsound.mp3'); 
+        scanSound.play().catch(err => console.log("Sound play error (Browser Auto-play block ho sakta hai):", err));
+        
+        if ("vibrate" in navigator) {
+            navigator.vibrate(200); 
+        }
+    } catch (e) {
+        console.error("Audio/Vibration Error:", e);
+    }
+
+    try {
+        // 🛑 2. Stop Scanner
         stopScanner();
         
-        // QR text ko JSON me badalna
+        console.log("Scan Result: ", decodedText);
+
+        // 🧠 3. Process QR Data
         const data = JSON.parse(decodedText); 
         
         const res = await fetch(`${API_BASE_URL}/api/guard/scan-qr`, {
@@ -148,10 +157,11 @@ async function onScanSuccess(decodedText) {
     }
 }
 
-
+// Logout
 function logout() {
     localStorage.clear();
     window.location.href = 'login.html';
 }
 
+// Init
 window.onload = loadApprovedLeaves;
