@@ -1,5 +1,5 @@
 /**
- * Hostrac - Student Dashboard (Final: Cache Bypass & Multi-Outpass Support)
+ * Hostrac - Student Dashboard (Final: Cache Bypass, Multi-Outpass Block & Date Fix)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
@@ -38,7 +38,6 @@ function showPanel(id, el) {
 
 async function loadMyHistory() {
     try {
-        // 🚀 FIX 1: CACHE BYPASS - Browser ko majboor karna ki fresh data laye
         const res = await fetch(`${API_BASE_URL}/api/student/history/${user._id}?t=${new Date().getTime()}`, {
             headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -54,7 +53,6 @@ async function loadMyHistory() {
         const qrMsg = document.getElementById('qrStatusMsg');
         
         if (history.length > 0) {
-            // 🚀 FIX 2: STRICT SORTING - Hamesha sabse latest (nayi) request uthana MongoDB ki ID ke base par
             history.sort((a, b) => a._id.localeCompare(b._id));
             const latestRequest = history[history.length - 1]; 
             
@@ -72,7 +70,6 @@ async function loadMyHistory() {
                     if (!user._id || !latestRequest._id) {
                         qrContainer.innerHTML = "<p style='color:red;'>Data Error.</p>";
                     } else {
-                        // Image cache bust karne ke liye timestamp lagaya hai
                         const qrData = JSON.stringify({ studentId: user._id, requestId: latestRequest._id });
                         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff&_t=${new Date().getTime()}`;
                         
@@ -130,7 +127,6 @@ async function loadMyHistory() {
             document.getElementById('statActive').innerText = history.filter(h => h.status && h.status.trim().toLowerCase() === 'approved').length;
         }
 
-        // Yahan display ke liye array ko ulta kiya hai (newest on top)
         [...history].reverse().forEach((h) => {
             const hStatus = h.status ? h.status.trim().toLowerCase() : "";
             const statusColor = hStatus === 'approved' ? '#27ae60' : (hStatus === 'rejected' ? '#e74c3c' : '#f39c12');
@@ -182,11 +178,34 @@ async function loadMyHistory() {
     }
 }
 
+// ========================================================
+// APPLY FORM SUBMIT (MERGED WITH VALIDATIONS)
+// ========================================================
 const applyForm = document.getElementById('applyForm');
 if(applyForm) {
     applyForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Default page reload roko
         
+        // --- BLOCKER: Check for existing active outpass ---
+        const recentTable = document.getElementById('recentTable');
+        if (recentTable && recentTable.querySelector('tr')) {
+            const latestRecordText = recentTable.querySelector('tr').innerText.toLowerCase();
+            
+            const isActive = latestRecordText.includes('pending') || 
+                             latestRecordText.includes('approved') || 
+                             latestRecordText.includes('out');
+            
+            const isFinished = latestRecordText.includes('completed') || 
+                               latestRecordText.includes('in') || 
+                               latestRecordText.includes('rejected');
+
+            if (isActive && !isFinished) {
+                alert("⚠️ WARNING: Your outpass is already active or pending! You cannot apply again until you return.");
+                return; // 🛑 Yahi par execution rok dega, API call nahi hogi
+            }
+        }
+        
+        // Agar yahan tak aaya, matlab validation pass! Ab API hit karo
         const reason = document.getElementById('reason').value;
         const leaveDate = document.getElementById('leaveDate').value;
         const returnDate = document.getElementById('returnDate').value;
@@ -229,51 +248,27 @@ setInterval(loadMyHistory, 10000);
 window.onload = loadMyHistory;
 
 // ========================================================
-// 🛑 1. PAST DATE & 2. DOUBLE APPLY BLOCKER (FIXED)
+// PAST DATE BLOCKER (Local Timezone Fix)
 // ========================================================
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. Past Date Logic ---
     const leaveInput = document.getElementById('leaveDate');
     const returnInput = document.getElementById('returnDate');
 
     if (leaveInput && returnInput) {
-        const today = new Date().toISOString().split('T')[0];
-        leaveInput.setAttribute('min', today);
-        returnInput.setAttribute('min', today);
+        // Local Date nikalne ka solid tarika (UTC Bypass)
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const localToday = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD format
 
+        // Min attribute me current local date lagao
+        leaveInput.setAttribute('min', localToday);
+        returnInput.setAttribute('min', localToday);
+
+        // Leave date badalne par Return date ki limit bhi update ho
         leaveInput.addEventListener('change', function() {
             returnInput.setAttribute('min', this.value);
         });
-    }
-
-    // --- 2. Double Apply Blocker Logic ---
-    // Naya variable naam (myForm) use kiya hai taaki error na aaye
-    const myForm = document.getElementById('applyForm');
-    
-    if (myForm) {
-        myForm.addEventListener('submit', function(e) {
-            const recentTable = document.getElementById('recentTable');
-            
-            if (recentTable && recentTable.querySelector('tr')) {
-                const latestRecordText = recentTable.querySelector('tr').innerText.toLowerCase();
-                
-                const isActive = latestRecordText.includes('pending') || 
-                                 latestRecordText.includes('approved') || 
-                                 latestRecordText.includes('out');
-                
-                const isFinished = latestRecordText.includes('completed') || 
-                                   latestRecordText.includes('in') || 
-                                   latestRecordText.includes('rejected');
-
-                if (isActive && !isFinished) {
-                    e.preventDefault(); 
-                    e.stopImmediatePropagation(); 
-                    
-                    alert("⚠️ WARNING: Your outpass already acvtive or pending !");
-                    return false;
-                }
-            }
-        }, true); 
     }
 });
