@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Guard | HOSTRAC</title>
+    
+    <!-- Icons & Styling -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../style/style.css">
+    
+    <!-- QR Code & Scanner Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
@@ -37,12 +41,14 @@
 
     <div class="main">
         
+        <!-- MAIN GATE PANEL -->
         <div id="panel-gate" class="panel active">
             <div class="page-header">
                 <h1>Gate Movement Control</h1>
                 <br>
             </div>
 
+            <!-- STATS GRID -->
             <div class="stats-grid">
                 <div class="stat-card blue">
                     <div class="label">Approved Today</div>
@@ -58,38 +64,46 @@
                 </div>
             </div>
 
+            <!-- NEW: QR SCANNER SECTION (Fixed Layout) -->
+            <div class="section" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.2);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <h3 style="color: #2d3436; margin: 0;">📸 Quick QR Scan</h3>
+                    <button id="toggleScanner" class="btn" style="background: #6c5ce7; color: #fff; padding: 10px 15px;" onclick="startScanner()">Open Camera</button>
+                </div>
+                
+                <!-- Camera Display Area -->
+                <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; overflow: hidden; border-radius: 15px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
+                
+                <div id="scanResult" style="text-align: center; margin-top: 15px; color: #27ae60; font-weight: bold; font-size: 16px;"></div>
+            </div>
+
+            <!-- AUTHORIZED MOVEMENTS TABLE SECTION -->
             <div class="section">
                 <div class="section-header">
                     <h3>Authorized Movements</h3>
                     <button class="btn btn-primary" onclick="loadApprovedLeaves()">🔄 Refresh Gate</button>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>Room No</th>
-                            <th>Out Date</th>
-                            <th>Current Status</th>
-                            <th style="text-align:center;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="guardTableBody">
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Room No</th>
+                                <th>Out Date</th>
+                                <th>Current Status</th>
+                                <th style="text-align:center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="guardTableBody">
+                            <!-- Data will be loaded here via JS -->
                         </tbody>
-                </table>
-                div class="section" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.2);">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-        <h3 style="color: #fff; margin: 0;">📸 Quick QR Scan</h3>
-        <button id="toggleScanner" class="btn" style="background: #6c5ce7; color: #fff;" onclick="startScanner()">Open Camera</button>
-    </div>
-    
-    <!-- Camera Display Area -->
-    <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; overflow: hidden; border-radius: 15px; display: none;"></div>
-    
-    <div id="scanResult" style="text-align: center; margin-top: 10px; color: #55efc4; font-weight: bold;"></div>
-</div>
+                    </table>
+                </div>
             </div>
         </div>
 
+        <!-- LOGS PANEL -->
         <div id="panel-logs" class="panel">
             <div class="page-header">
                 <h1>Movement Logs</h1>
@@ -104,6 +118,7 @@
 
     </div>
 
+    <!-- JavaScript Files -->
     <script src="../js/guard.js"></script>
     <script src="../js/login.js"></script>
 </body>
