@@ -1,5 +1,5 @@
 /**
- * Hostrac - Student Dashboard (Final Fix: Showing Both IN/OUT Time)
+ * Hostrac - Student Dashboard (Final: Cache Bypass & Multi-Outpass Support)
  */
 
 const API_BASE_URL = 'https://hostrac.onrender.com';
@@ -38,16 +38,26 @@ function showPanel(id, el) {
 
 async function loadMyHistory() {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/student/history/${user._id}`);
+        // 🚀 FIX 1: CACHE BYPASS - Browser ko majboor karna ki fresh data laye
+        const res = await fetch(`${API_BASE_URL}/api/student/history/${user._id}?t=${new Date().getTime()}`, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        });
+        
         if (!res.ok) throw new Error("Connection Error");
         
-        const history = await res.json();
+        let history = await res.json();
         
         const qrContainer = document.getElementById('qrcode');
         const qrMsg = document.getElementById('qrStatusMsg');
         
         if (history.length > 0) {
+            // 🚀 FIX 2: STRICT SORTING - Hamesha sabse latest (nayi) request uthana MongoDB ki ID ke base par
+            history.sort((a, b) => a._id.localeCompare(b._id));
             const latestRequest = history[history.length - 1]; 
+            
             const safeStatus = latestRequest.status ? latestRequest.status.trim().toLowerCase() : "";
             
             if (qrContainer) {
@@ -62,8 +72,10 @@ async function loadMyHistory() {
                     if (!user._id || !latestRequest._id) {
                         qrContainer.innerHTML = "<p style='color:red;'>Data Error.</p>";
                     } else {
+                        // Image cache bust karne ke liye timestamp lagaya hai
                         const qrData = JSON.stringify({ studentId: user._id, requestId: latestRequest._id });
-                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff`;
+                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff&_t=${new Date().getTime()}`;
+                        
                         qrContainer.innerHTML = `<img src="${qrUrl}" alt="Gate Pass QR" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); width: 160px; height: 160px; display: block; margin: 0 auto;">`;
                     }
                 } 
@@ -118,13 +130,13 @@ async function loadMyHistory() {
             document.getElementById('statActive').innerText = history.filter(h => h.status && h.status.trim().toLowerCase() === 'approved').length;
         }
 
+        // Yahan display ke liye array ko ulta kiya hai (newest on top)
         [...history].reverse().forEach((h) => {
             const hStatus = h.status ? h.status.trim().toLowerCase() : "";
             const statusColor = hStatus === 'approved' ? '#27ae60' : (hStatus === 'rejected' ? '#e74c3c' : '#f39c12');
             const displayStatus = h.status ? h.status.toUpperCase() : "UNKNOWN";
             const leaveDateStr = new Date(h.leaveDate).toLocaleDateString('en-GB');
 
-            // 🚀 ULTIMATE FIX: Jab outpass completed ho, toh dono time dikhayein
             if (h.entryTime) {
                 const outTimeDisplay = h.exitTime ? formatDateTime(h.exitTime) : "---";
                 const inTimeDisplay = formatDateTime(h.entryTime);
@@ -143,9 +155,7 @@ async function loadMyHistory() {
                     </tr>`;
                 if (historyTable) historyTable.innerHTML += entryRow;
                 if (recentTable) recentTable.innerHTML += entryRow;
-            } 
-            // Jab sirf bahar gaya ho (OUT)
-            else if (h.exitTime) {
+            } else if (h.exitTime) {
                 const exitRow = `
                     <tr style="background-color: #fff5f5;">
                         <td>${h.reason}</td>
@@ -155,9 +165,7 @@ async function loadMyHistory() {
                     </tr>`;
                 if (historyTable) historyTable.innerHTML += exitRow;
                 if (recentTable) recentTable.innerHTML += exitRow;
-            } 
-            // Jab abhi tak bahar nahi gaya (Not Started)
-            else {
+            } else {
                 const waitingRow = `
                     <tr>
                         <td>${h.reason}</td>
