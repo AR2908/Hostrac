@@ -4,78 +4,92 @@
     <meta charset="UTF-8">
     <title>Student Portal | HOSTRAC</title>
     <link rel="stylesheet" href="../style/style.css">
+    
+    <!-- IMPORTANT: QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 <div class="sidebar">
     <div class="logo">HOSTRAC</div>
     <div class="logo-sub">Student Portal</div>
     <div class="user-badge">
-        <div class="name" id="sidebarName"></div>
+        <div class="name" id="sidebarName">Loading...</div>
         <div class="role">🎓 Student</div>
-        <div class="room" id="sidebarRoom" style="font-size: 11px; opacity: 0.7;">Room: 102</div>
+        <div class="room" id="sidebarRoom" style="font-size: 11px; opacity: 0.7;">Room: ---</div>
     </div>
     <nav>
         <a class="active" onclick="showPanel('dashboard', this)">🏠 Dashboard</a>
         <a onclick="showPanel('apply', this)">📝 Apply Outpass</a>
-    <div class="logout">
-        <a onclick="logout()" style="color: #ff7675; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: 600;">🚪 Logout</a>
-    </div>
+        <a onclick="showPanel('history', this)">🕒 Full History</a>
     </nav>
-    
+    <div class="logout">
+        <a onclick="logout()" style="color: #ff7675; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: 600; display: block; margin-top: 20px; text-align: center;">🚪 Logout</a>
+    </div>
 </div>
 
 <div class="main">
+    
+    <!-- DASHBOARD PANEL -->
     <div id="panel-dashboard" class="panel active">
         <div class="page-header">
             <h1 id="welcomeMsg">Welcome!</h1>
             <p>View your outpass status and recent activity</p>
         </div>
+        
         <div class="stats-grid">
             <div class="stat-card blue"><div class="label">Total Applications</div><div class="value" id="statTotal">0</div></div>
             <div class="stat-card green"><div class="label">Approved</div><div class="value" id="statActive">0</div></div>
             <div class="stat-card red"><div class="label">Late Returns</div><div class="value" id="statLate">0</div></div>
         </div>
+
+        <!-- NEW: QR CODE DISPLAY SECTION -->
+        <div class="section" style="background: rgba(255,255,255,0.05); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 25px; border: 1px solid #6c5ce7; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <h3 style="color: #6c5ce7; margin-bottom: 5px;">Your Gate Pass QR</h3>
+            <p id="qrStatusMsg" style="font-weight: bold; color: #e17055; margin-bottom: 15px; font-size: 14px;">Checking Status...</p>
+            
+            <!-- Ye box khali rahna chahiye, JS isme aakar drawing karegi -->
+            <div id="qrcode" style="display: flex; justify-content: center; align-items: center; min-height: 160px; background: white; padding: 10px; border-radius: 10px; width: max-content; margin: 0 auto;"></div>
+        </div>
+
         <div class="section">
             <div class="section-header"><h3>Recent Activity</h3></div>
-            <table>
-                <thead><tr><th>Reason</th><th>Date</th><th>Status</th><th>Gate</th></tr></thead>
-                <tbody id="recentTable"></tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>Reason</th><th>Date</th><th>Status</th><th>Gate</th></tr></thead>
+                    <tbody id="recentTable"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
+    <!-- APPLY PANEL -->
     <div id="panel-apply" class="panel">
         <div class="page-header"><h1>Apply Outpass</h1><p>Fill details for warden approval</p></div>
         <div class="section" style="max-width: 600px;">
-            <form id="applyForm" onsubmit="event.preventDefault(); applyLeave();">
+            <form id="applyForm" onsubmit="event.preventDefault();">
                 <div class="form-group"><label>Reason</label><input type="text" id="reason" placeholder="Home Visit" required></div>
                 <div class="form-group"><label>Out Date</label><input type="date" id="leaveDate" required></div>
                 <div class="form-group"><label>Return Date</label><input type="date" id="returnDate" required></div>
-                <button class="btn btn-primary" style="width: 100%;">Submit Application</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Application</button>
             </form>
         </div>
     </div>
     
+    <!-- HISTORY PANEL -->
     <div id="panel-history" class="panel">
         <div class="page-header"><h1>Full History</h1></div>
         <div class="section">
-            <table>
-                <thead><tr><th>Date</th><th>Reason</th><th>Status</th><th>Time In/Out</th></tr></thead>
-                <tbody id="studentHistory"></tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>Date</th><th>Reason</th><th>Status</th><th>Gate Updates</th></tr></thead>
+                    <tbody id="historyTable"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="../js/student.js"></script>
 <script src="../js/login.js"></script>
-<script>
-    function showPanel(id, el) {
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + id).classList.add('active');
-        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-        el.classList.add('active');
-    }
-</script>
 </body>
 </html>
