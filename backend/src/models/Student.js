@@ -11,6 +11,7 @@ const studentSchema = new mongoose.Schema({
     mobile: { type: String, default: '-' },
     fatherName: { type: String, default: '-' },
     motherName: { type: String, default: '-' },
+    status: { type: String, default: 'Active' },
     address: { type: String, default: '-' }
 }, { timestamps: true });
 
