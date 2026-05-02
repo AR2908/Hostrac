@@ -4,7 +4,7 @@ const Student = require('../models/Student');
 const ExStudent = require('../models/ExStudent');
 const Warden = require('../models/Warden');
 const Guard = require('../models/Guard');
-const LeaveRequest = require('../models/LeaveRequest'); // <--- Naya Model Import kiya
+const LeaveRequest = require('../models/LeaveRequest');
 
 // --- 1. Create User (Student/Staff) ---
 router.post('/create-user', async (req, res) => {
@@ -20,8 +20,9 @@ router.post('/create-user', async (req, res) => {
         }
 
         let newUser;
+        // Fix: Manual create kiye gaye student automatically 'Active' honge
         if (role === 'student') {
-            newUser = new Student(req.body);
+            newUser = new Student({ ...req.body, status: 'Active' }); 
         } else if (role === 'warden') {
             newUser = new Warden(req.body);
         } else if (role === 'guard') {
@@ -84,15 +85,13 @@ router.post('/update-fees', async (req, res) => {
     }
 });
 
-// --- 4. Get Lists (UPDATED WITH LIVE STATUS) ---
+// --- 4. Get Lists (UPDATED: Hidden Pending Students) ---
 router.get('/students', async (req, res) => {
     try {
-        // Sabhi active students nikalte hain
-        const students = await Student.find().sort({ name: 1 }).lean();
+        // 🚀 FIX: Sirf active students nikalenge, 'Pending' wale nahi aayenge
+        const students = await Student.find({ status: { $ne: 'Pending' } }).sort({ name: 1 }).lean();
 
-        // Har student ke liye uska latest status check karte hain
         const studentsWithStatus = await Promise.all(students.map(async (student) => {
-            // Latest approved leave request check karein
             const lastLeave = await LeaveRequest.findOne({ 
                 studentId: student._id,
                 status: 'Approved' 
@@ -100,7 +99,6 @@ router.get('/students', async (req, res) => {
 
             return {
                 ...student,
-                // Agar status 'Out' hai toh Out, warna hamesha 'In'
                 currentStatus: (lastLeave && lastLeave.gateStatus === 'Out') ? 'Out' : 'In'
             };
         }));
@@ -157,5 +155,46 @@ router.delete('/delete-staff/:role/:id', async (req, res) => {
     }
 });
 
+// =========================================================
+// 🚀 5. NEW ADMISSIONS LOGIC (PENDING, APPROVE, REJECT)
+// =========================================================
+
+// Get Pending Students
+router.get('/pending-students', async (req, res) => {
+    try {
+        const pendingStudents = await Student.find({ status: 'Pending' });
+        res.status(200).json(pendingStudents);
+    } catch (err) {
+        console.error("Fetch Pending Error:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
+
+// Approve & Allot Room
+router.post('/approve-student', async (req, res) => {
+    try {
+        const { studentId, roomNo } = req.body;
+        await Student.findByIdAndUpdate(studentId, { 
+            status: 'Active', 
+            roomNo: roomNo 
+        });
+        res.status(200).json({ success: true, message: "Student Approved & Room Allotted!" });
+    } catch (err) {
+        console.error("Approve Error:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
+
+// Reject & Delete Student
+router.post('/reject-student', async (req, res) => {
+    try {
+        const { studentId } = req.body;
+        await Student.findByIdAndDelete(studentId);
+        res.status(200).json({ success: true, message: "Student Rejected & Deleted" });
+    } catch (err) {
+        console.error("Reject Error:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
 
 module.exports = router;
