@@ -24,10 +24,13 @@ function showPanel(id, el) {
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     el.classList.add('active');
 
+    // Tab Load hone par data fetch karna
     if (id === 'add-user') loadActiveStudents();
     if (id === 'ex-students') loadExStudents();
     if (id === 'staff') loadStaffMembers();
+    if (id === 'admissions') loadPendingAdmissions(); // 🚀 FIX: Admission load karne ka logic add kiya
 }
+
 document.getElementById('studentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -41,7 +44,8 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
         motherName: document.getElementById('sMother').value,
         roomNo: document.getElementById('sRoom').value,
         address: document.getElementById('sAddress').value,
-        password: document.getElementById('sPass').value 
+        password: document.getElementById('sPass').value,
+        status: 'Active' // Manually add karne par seedha active hoga
     };
 
     try {
@@ -91,13 +95,13 @@ async function loadActiveStudents() {
                     <td><span class="${isPaid ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></td>
                    
                     <td style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
-        <i class="fas fa-check-circle"></i> Mark ${nextStatus}
-    </button>
-    <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}')">
-        <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
-    </button>
-</td>
+                        <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
+                            <i class="fas fa-check-circle"></i> Mark ${nextStatus}
+                        </button>
+                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}')">
+                            <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
+                        </button>
+                    </td>
                 </tr>
             `;
         });
@@ -230,6 +234,103 @@ async function deleteStaffMember(role, id) {
             }
         } catch (err) {
             alert("Delete Failed! Backend check karein.");
+        }
+    }
+}
+
+// ==========================================
+// 4. NEW ADMISSION MANAGEMENT
+// ==========================================
+
+async function loadPendingAdmissions() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/pending-students`);
+        const students = await res.json();
+        
+        const tbody = document.getElementById('admissionTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (students.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: gray; padding: 20px;">No pending admissions right now.</td></tr>`;
+            return;
+        }
+
+        students.forEach(student => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>
+                        <b>${student.name}</b><br>
+                        <small style="color: #64748b;">${student.email}</small><br>
+                        <small style="color: #6c63ff; font-weight: bold;">${student.college}</small>
+                    </td>
+                    <td>
+                        <small><b>F:</b> ${student.fatherName}</small><br>
+                        <small><b>M:</b> ${student.motherName}</small>
+                    </td>
+                    <td><small style="color: #64748b;">${student.address}</small></td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                            <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px; background: #10b981;" onclick="approveStudent('${student._id}')">
+                                <i class="fas fa-check-circle"></i> Approve
+                            </button>
+                            <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="rejectStudent('${student._id}')">
+                                <i class="fas fa-times-circle"></i> Reject
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Error loading admissions:", err);
+    }
+}
+
+async function approveStudent(studentId) {
+    const roomNo = prompt("✅ Please allot a Room Number for this student:");
+    
+    if (!roomNo || roomNo.trim() === "") {
+        alert("⚠️ Room number is required to approve a student!");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/approve-student`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ studentId: studentId, roomNo: roomNo, status: 'Active' })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert("🎉 Student Approved Successfully!");
+            loadPendingAdmissions(); 
+            loadActiveStudents(); 
+        } else {
+            alert("❌ Failed to approve: " + data.message);
+        }
+    } catch (err) {
+        console.error("Approval Error:", err);
+        alert("Server Error!");
+    }
+}
+
+async function rejectStudent(studentId) {
+    if(confirm("❌ Are you sure you want to reject and delete this registration request?")) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/reject-student`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId: studentId })
+            });
+            
+            if (res.ok) {
+                alert("Registration Rejected!");
+                loadPendingAdmissions();
+            }
+        } catch (err) {
+            console.error(err);
         }
     }
 }
