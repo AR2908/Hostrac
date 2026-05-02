@@ -266,8 +266,8 @@ async function loadPendingAdmissions() {
                         <small style="color: #6c63ff; font-weight: bold;">${student.collegeName || 'N/A'}</small>
                     </td>
                     <td>
-                        <small><b>F:</b> ${student.fatherName || '---'}</small><br>
-                        <small><b>M:</b> ${student.motherName || '---'}</small>
+                        <small><b>FATHER:</b> ${student.fatherName || '---'}</small><br>
+                        <small><b>MOTHER:</b> ${student.motherName || '---'}</small>
                     </td>
                     <td><small style="color: #64748b;">${student.address || '---'}</small></td>
                     <td style="text-align: center;">
