@@ -16,8 +16,8 @@
 body {
     background: var(--deep-bg);
     color: var(--text-main);
-    overflow: hidden; /* Strict NO SCROLL for mobile app feel */
-    height: 100vh;
+    overflow-y: auto; /* Allow scrolling if form gets big on small screens */
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -51,10 +51,11 @@ body {
     border-radius: 35px;
     border: 1px solid var(--glass-border);
     width: 100%;
-    max-width: 420px; /* Perfect for mobile and PC */
+    max-width: 420px; 
     box-shadow: 0 30px 60px rgba(0,0,0,0.5);
     text-align: center;
     animation: floatIn 0.8s ease-out;
+    transition: max-width 0.4s ease; /* Smooth width change */
 }
 
 @keyframes floatIn {
@@ -68,9 +69,16 @@ body {
 .logo span { color: var(--accent); text-shadow: 0 0 15px rgba(0, 242, 254, 0.5); }
 .login-header p { color: var(--text-dim); font-size: 14px; }
 
-.login-form { display: flex; flex-direction: column; gap: 20px; }
+.login-form { display: flex; flex-direction: column; gap: 15px; }
 
-.input-group { position: relative; display: flex; align-items: center; }
+/* Grid for forms (2 columns on PC, 1 on Mobile) */
+.grid-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.input-group { position: relative; display: flex; align-items: center; width: 100%; }
 
 .input-group .icon {
     position: absolute;
@@ -81,7 +89,10 @@ body {
     transition: var(--transition);
 }
 
-.input-group input, .input-group select {
+/* Added textarea support to match input fields */
+.input-group input, 
+.input-group select, 
+.input-group textarea {
     width: 100%;
     padding: 16px 16px 16px 50px;
     background: rgba(0, 0, 0, 0.25);
@@ -91,10 +102,15 @@ body {
     font-size: 15px;
     outline: none;
     transition: var(--transition);
-    appearance: none;
+}
+
+.input-group textarea {
+    resize: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .input-group select {
+    appearance: none;
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
     background-repeat: no-repeat;
     background-position: right 18px top 50%;
@@ -104,13 +120,17 @@ body {
 
 .input-group select option { background: #1e1e2f; color: white; }
 
-.input-group input:focus, .input-group select:focus {
+.input-group input:focus, 
+.input-group select:focus, 
+.input-group textarea:focus {
     border-color: var(--accent);
     box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
     background: rgba(0, 0, 0, 0.5);
 }
 
-.input-group input:focus ~ .icon, .input-group select:focus ~ .icon {
+.input-group input:focus ~ .icon, 
+.input-group select:focus ~ .icon, 
+.input-group textarea:focus ~ .icon {
     color: var(--accent);
 }
 
@@ -152,7 +172,12 @@ body {
 .login-footer a:hover { color: var(--accent); }
 
 /* Mobile Optimization */
+@media (max-width: 650px) {
+    .grid-row { grid-template-columns: 1fr; gap: 15px; } /* Stack inputs on small screens */
+}
+
 @media (max-width: 480px) {
+    body { align-items: flex-start; padding-top: 20px; } /* Prevent cut-off on small mobiles */
     .glass-card { padding: 35px 25px; border-radius: 25px; }
     .logo { font-size: 32px; }
     .btn-main { padding: 15px; font-size: 15px; }
