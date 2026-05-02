@@ -203,7 +203,7 @@ if (registerForm) {
             const data = await res.json();
 
             if (res.ok) {
-                alert("✅ Registration Successful!\nYour request has been sent to the Admin. You can login once your room is allotted.");
+                alert("✅ Registration Successful!\nYour request has been sent to the Admin. You can login once your details are veridied.");
                 registerForm.reset();
                 toggleForms('login'); // Form submit hone ke baad wapas login page dikhao
             } else {
