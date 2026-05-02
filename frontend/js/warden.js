@@ -130,8 +130,15 @@ async function loadOutpass() {
             nameStyle = "color: #d63031; font-weight: bold;"; 
             
             let actionHtml = (req.status === 'Pending') ? `
-                    <button class="btn btn-primary" style="padding:5px 10px; font-size:11px;" onclick="updateReq('${req._id}', 'Approved')">Approve</button>
-                    <button class="btn" style="background:#ff7675; color:white; padding:5px 10px; font-size:11px;" onclick="updateReq('${req._id}', 'Rejected')">Reject</button>
+                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px; background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="updateReq('${req._id}', 'Approved')">
+        <i class="fas fa-check-circle"></i> Approve
+    </button>
+    <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="updateReq('${req._id}', 'Rejected')">
+        <i class="fas fa-times-circle"></i> Reject
+    </button>
+</div>
+
                 ` : `<span class="${req.status === 'Approved' ? 'fees-paid' : 'fees-unpaid'}">${req.status}</span>`;
 
             tbody.innerHTML += `
