@@ -167,17 +167,21 @@
 
     <!-- Modals -->
     <div id="exitModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></span>
-            <h3 style="margin-bottom: 5px; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Permanent Exit</h3>
-            <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px;">Mark student as EX-Student</p>
-            <form onsubmit="event.preventDefault(); confirmPermanentExit();">
-                <div class="form-group"><label>Exit Date</label><input type="date" id="exitDate" required></div>
-                <div class="form-group" style="margin-top: 10px;"><label>Exit Time</label><input type="time" id="exitTime" required></div>
-                <button type="submit" class="btn btn-danger" style="width: 100%; margin-top: 20px; padding: 14px;">Confirm Exit</button>
-            </form>
-        </div>
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></span>
+        <h3 style="margin-bottom: 5px; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Permanent Exit</h3>
+        
+        <!-- Yahan span me ID laga di hai -->
+        <h3 style="margin-bottom: 5px; font-size: 16px;"> Student Name: <span id="exitStudentName" style="color: var(--danger);"></span></h3>
+        
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px;">Mark student as EX-Student</p>
+        <form onsubmit="event.preventDefault(); confirmPermanentExit();">
+            <div class="form-group"><label>Exit Date</label><input type="date" id="exitDate" required></div>
+            <div class="form-group" style="margin-top: 10px;"><label>Exit Time</label><input type="time" id="exitTime" required></div>
+            <button type="submit" class="btn btn-danger" style="width: 100%; margin-top: 20px; padding: 14px;">Confirm Exit</button>
+        </form>
     </div>
+</div>
 
     <script src="../js/admin.js"></script>
     <script src="../js/login.js"></script>
