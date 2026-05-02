@@ -151,16 +151,21 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 // 5. REGISTRATION & FORM TOGGLE LOGIC
 // ==========================================
+
+// 🚀 FIX: Yahan wide-card logic add kar diya gaya hai
 function toggleForms(type) {
     const loginSec = document.getElementById('loginSection'); 
     const regSec = document.getElementById('registerSection');
+    const card = document.getElementById('mainCard'); // Card ko pakda
     
     if(type === 'register') {
         if(loginSec) loginSec.style.display = 'none';
         if(regSec) regSec.style.display = 'block';
+        if(card) card.classList.add('wide-card'); // Card ko chauda kiya
     } else {
         if(loginSec) loginSec.style.display = 'block';
         if(regSec) regSec.style.display = 'none';
+        if(card) card.classList.remove('wide-card'); // Card ko normal kiya
     }
 }
 
