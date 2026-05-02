@@ -150,22 +150,5 @@
     </div>
 
     <script src="../js/login.js"></script>
-    <script>
-        function toggleForms(type) {
-            const loginSec = document.getElementById('loginSection'); 
-            const regSec = document.getElementById('registerSection');
-            const card = document.getElementById('mainCard');
-            
-            if(type === 'register') {
-                loginSec.style.display = 'none';
-                regSec.style.display = 'block';
-                card.classList.add('wide-card'); // Card ko chauda karne ke liye
-            } else {
-                loginSec.style.display = 'block';
-                regSec.style.display = 'none';
-                card.classList.remove('wide-card'); // Wapas normal size
-            }
-        }
-    </script>
 </body>
 </html>
