@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HOSTRAC | Secure Login & Admission</title>
+    <title>HOSTRAC | Secure Login & Registration</title>
     
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Link to new Login CSS -->
     <link rel="stylesheet" href="../style/login.css">
 </head>
 <body>
 
-    <!-- Premium Animated Particle Background -->
     <canvas id="bgCanvas"></canvas>
 
     <div class="login-wrapper">
+
+        <div class="desktop-stages-container">
+            <div class="center-ring"></div>
+            
+            <div class="stage-box left-stage stage-1">
+                <div class="stage-text">Registration<br><small>(Fill Details)</small></div>
+                <div class="stage-icon"><i class="fas fa-user-edit"></i></div>
+            </div>
+            <div class="stage-box left-stage stage-2">
+                <div class="stage-text">Verification<br><small>(By Admin)</small></div>
+                <div class="stage-icon"><i class="fas fa-user-check"></i></div>
+            </div>
+            <div class="stage-box left-stage stage-3">
+                <div class="stage-text">Room Allotment<br><small>(Get Room No)</small></div>
+                <div class="stage-icon"><i class="fas fa-bed"></i></div>
+            </div>
+
+            <div class="stage-box right-stage stage-4">
+                <div class="stage-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="stage-text">Fees Payment<br><small>(Clear Dues)</small></div>
+            </div>
+            <div class="stage-box right-stage stage-5">
+                <div class="stage-icon"><i class="fas fa-ticket-alt"></i></div>
+                <div class="stage-text">Outpass Portal<br><small>(Leave Mgmt)</small></div>
+            </div>
+            <div class="stage-box right-stage stage-6">
+                <div class="stage-icon"><i class="fas fa-sign-out-alt"></i></div>
+                <div class="stage-text">Permanent Exit<br><small>(Ex-Student)</small></div>
+            </div>
+        </div>
         <div class="glass-card" id="mainCard">
             
-            <!-- ================= LOGIN FORM SECTION ================= -->
             <div id="loginSection">
                 <div class="login-header">
                     <div class="logo">HOST<span>RAC</span></div>
@@ -53,14 +79,12 @@
                         Sign In <i class="fas fa-arrow-right"></i>
                     </button>
                     
-                    <!-- Registration Link -->
                     <p style="text-align: center; font-size: 13px; margin-top: 20px;">
                         New Admission? <a href="#" onclick="toggleForms('register')" style="color: var(--primary); font-weight: bold;">Register Here</a>
                     </p>
                 </form>
             </div>
 
-            <!-- ================= REGISTRATION FORM SECTION ================= -->
             <div id="registerSection" style="display: none;">
                 <div class="login-header" style="margin-bottom: 20px;">
                     <div class="logo" style="font-size: 28px;">New <span>Admission</span></div>
@@ -68,17 +92,15 @@
                 </div>
 
                 <form id="registerForm" class="login-form">
-                    <!-- Name & College -->
                     <div class="input-group">
                         <i class="fas fa-user icon"></i>
                         <input type="text" id="regName" placeholder="Student Full Name" required>
                     </div>
                     <div class="input-group">
                         <i class="fas fa-graduation-cap icon"></i>
-                        <input type="text" id="regCollege" placeholder="College Name (e.g. SCSIT DAVV)" required>
+                        <input type="text" id="regCollege" placeholder="College Name" required>
                     </div>
 
-                    <!-- Parents Details (Grid row) -->
                     <div class="grid-row">
                         <div class="input-group">
                             <i class="fas fa-male icon"></i>
@@ -90,9 +112,8 @@
                         </div>
                     </div>
 
-                    <!-- Address & Email -->
                     <div class="input-group">
-                        <i class="fas fa-map-marker-alt icon" style="top: 18px; transform: none;"></i>
+                        <i class="fas fa-map-marker-alt icon"></i>
                         <textarea id="regAddress" placeholder="Full Permanent Address" rows="2" required></textarea>
                     </div>
                     
@@ -101,7 +122,6 @@
                         <input type="email" id="regEmail" placeholder="Email Address" required>
                     </div>
 
-                    <!-- Passwords -->
                     <div class="grid-row">
                         <div class="input-group">
                             <i class="fas fa-lock icon"></i>
@@ -123,18 +143,13 @@
                 </form>
             </div>
 
-            <!-- Footer (Dono me dikhega) -->
             <div class="login-footer">
                 <a href="../index.html"><i class="fas fa-home"></i> Back to Home Page</a>
             </div>
-
         </div>
     </div>
 
-    <!-- Login JS -->
     <script src="../js/login.js"></script>
-    
-    <!-- Small inline script to adjust card size on toggle -->
     <script>
         function toggleForms(type) {
             const loginSec = document.getElementById('loginSection'); 
@@ -142,13 +157,13 @@
             const card = document.getElementById('mainCard');
             
             if(type === 'register') {
-                if(loginSec) loginSec.style.display = 'none';
-                if(regSec) regSec.style.display = 'block';
-                card.style.maxWidth = '600px'; // Make card wider for registration
+                loginSec.style.display = 'none';
+                regSec.style.display = 'block';
+                card.classList.add('wide-card'); // Card ko chauda karne ke liye
             } else {
-                if(loginSec) loginSec.style.display = 'block';
-                if(regSec) regSec.style.display = 'none';
-                card.style.maxWidth = '420px'; // Normal width for login
+                loginSec.style.display = 'block';
+                regSec.style.display = 'none';
+                card.classList.remove('wide-card'); // Wapas normal size
             }
         }
     </script>
