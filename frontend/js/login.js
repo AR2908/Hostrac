@@ -1,5 +1,5 @@
 /**
- * HOSTRAC - Premium Login & Animation Logic
+ * HOSTRAC - Premium Login, Registration & Animation Logic
  */
 
 const BASE_URL = "https://hostrac.onrender.com"; // Yaha apna backend URL
@@ -67,7 +67,7 @@ function logout() {
 }
 
 // ==========================================
-// 2. PARTICLE ANIMATION LOGIC (From Landing)
+// 2. PARTICLE ANIMATION LOGIC
 // ==========================================
 const canvas = document.getElementById('bgCanvas');
 if (canvas) {
@@ -128,14 +128,14 @@ document.onkeydown = function(e) {
     if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
     if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
 };
+
 // ==========================================
-// AUTO-LOAD FOOTER COMPONENT
+// 4. AUTO-LOAD FOOTER COMPONENT
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const footerDiv = document.getElementById('footer-placeholder');
     
     if (footerDiv) {
-        // Ye HTML page ki location ke hisaab se footer load karega
         fetch('footer.html') 
             .then(response => {
                 if(!response.ok) throw new Error("Footer file not found");
@@ -148,9 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- Form Toggle Logic ---
+// ==========================================
+// 5. REGISTRATION & FORM TOGGLE LOGIC
+// ==========================================
 function toggleForms(type) {
-    const loginSec = document.getElementById('loginSection'); // Aapke purane login div ka ID
+    const loginSec = document.getElementById('loginSection'); 
     const regSec = document.getElementById('registerSection');
     
     if(type === 'register') {
@@ -162,7 +164,6 @@ function toggleForms(type) {
     }
 }
 
-// --- Registration Submit Logic ---
 const registerForm = document.getElementById('registerForm');
 
 if (registerForm) {
@@ -192,8 +193,8 @@ if (registerForm) {
         };
 
         try {
-            // Note: Ye backend API aapko Node.js me banani hogi
-            const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+            // FIX: Use BASE_URL insted of API_BASE_URL
+            const res = await fetch(`${BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(studentData)
@@ -204,7 +205,7 @@ if (registerForm) {
             if (res.ok) {
                 alert("✅ Registration Successful!\nYour request has been sent to the Admin. You can login once your room is allotted.");
                 registerForm.reset();
-                toggleForms('login'); // Wapas login page par bhej do
+                toggleForms('login'); // Form submit hone ke baad wapas login page dikhao
             } else {
                 alert("❌ Registration Failed: " + data.message);
             }
