@@ -147,3 +147,70 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.log("Footer loading info (Ignore if on landing page):", err));
     }
 });
+
+// --- Form Toggle Logic ---
+function toggleForms(type) {
+    const loginSec = document.getElementById('loginSection'); // Aapke purane login div ka ID
+    const regSec = document.getElementById('registerSection');
+    
+    if(type === 'register') {
+        if(loginSec) loginSec.style.display = 'none';
+        if(regSec) regSec.style.display = 'block';
+    } else {
+        if(loginSec) loginSec.style.display = 'block';
+        if(regSec) regSec.style.display = 'none';
+    }
+}
+
+// --- Registration Submit Logic ---
+const registerForm = document.getElementById('registerForm');
+
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const password = document.getElementById('regPassword').value;
+        const confirmPass = document.getElementById('regConfirm').value;
+
+        // Validation: Password match
+        if (password !== confirmPass) {
+            alert("❌ Passwords do not match! Please check again.");
+            return;
+        }
+
+        // Student Data Object (Room Number is intentionally MISSING)
+        const studentData = {
+            name: document.getElementById('regName').value,
+            college: document.getElementById('regCollege').value,
+            fatherName: document.getElementById('regFather').value,
+            motherName: document.getElementById('regMother').value,
+            address: document.getElementById('regAddress').value,
+            email: document.getElementById('regEmail').value,
+            password: password,
+            role: 'student',
+            status: 'Pending' // Backend isko "Pending" set karke block rakhega
+        };
+
+        try {
+            // Note: Ye backend API aapko Node.js me banani hogi
+            const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(studentData)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert("✅ Registration Successful!\nYour request has been sent to the Admin. You can login once your room is allotted.");
+                registerForm.reset();
+                toggleForms('login'); // Wapas login page par bhej do
+            } else {
+                alert("❌ Registration Failed: " + data.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Server Error! Check backend connection.");
+        }
+    });
+}
