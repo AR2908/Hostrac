@@ -23,6 +23,15 @@ exports.login = async (req, res) => {
         }
 
         if (user) {
+            // 🚀 FIX: SECURITY CHECK FOR PENDING STUDENTS
+            // Agar role student hai aur status abhi tak 'Pending' hai, toh login block kar do!
+            if (role === 'student' && user.status === 'Pending') {
+                return res.status(401).json({ 
+                    success: false, 
+                    message: "Your account is under verification by Admin. Please wait for approval!" 
+                });
+            }
+
             // Role ko user object mein add kar dena taaki frontend pe redirect sahi ho
             const userData = user.toObject();
             userData.role = role; 
