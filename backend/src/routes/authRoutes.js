@@ -2,10 +2,44 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 
+// Models Import (For Registration Check)
+const Student = require('../models/Student');
+const Warden = require('../models/Warden');
+const Guard = require('../models/Guard');
+
 // Login Route: http://localhost:5000/api/auth/login
 router.post('/login', authController.login);
 
-module.exports = router;
+// =========================================================
+// 🚀 NEW REGISTRATION API (Saves to Student Model)
+// =========================================================
+router.post('/register', async (req, res) => {
+    try {
+        const { name, college, fatherName, motherName, address, email, password, role } = req.body;
+
+        // Check if email exists in ANY collection
+        const checkStudent = await Student.findOne({ email });
+        const checkWarden = await Warden.findOne({ email });
+        const checkGuard = await Guard.findOne({ email });
+
+        if (checkStudent || checkWarden || checkGuard) {
+            return res.status(400).json({ success: false, message: "Email already registered in system!" });
+        }
+
+        // Create new student with 'Pending' status
+        const newStudent = new Student({
+            name, email, password, collegeName: college, fatherName, motherName, address, role: 'student',
+            status: 'Pending' // Admin isko Active karega
+        });
+
+        await newStudent.save();
+        res.status(200).json({ success: true, message: "Registration successful! Pending Admin approval." });
+    } catch (err) {
+        console.error("Register Error:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
+
 // --- EK BAAR CHALANE KE LIYE ADMIN SETUP ---
 router.get('/setup-admin', async (req, res) => {
     try {
@@ -32,4 +66,5 @@ router.get('/setup-admin', async (req, res) => {
         res.status(500).send("Error: " + err.message);
     }
 });
+
 module.exports = router;
