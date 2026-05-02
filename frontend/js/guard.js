@@ -61,7 +61,7 @@ async function loadApprovedLeaves() {
                     <td>${req.studentId.roomNo}</td>
                     <td>${new Date(req.leaveDate).toLocaleDateString('en-GB')}</td>
                     <td>${currentStatus}</td>
-                    <td style="text-align:center;">${actionHtml}</td>
+                    
                 </tr>`;
         });
 
