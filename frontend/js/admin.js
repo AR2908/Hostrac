@@ -257,18 +257,19 @@ async function loadPendingAdmissions() {
         }
 
         students.forEach(student => {
+            // FIX: Yahan undefined se bachne ke liye collegeName aur fallbacks add kiye gaye hain
             tbody.innerHTML += `
                 <tr>
                     <td>
-                        <b>${student.name}</b><br>
-                        <small style="color: #64748b;">${student.email}</small><br>
-                        <small style="color: #6c63ff; font-weight: bold;">${student.college}</small>
+                        <b>${student.name || 'No Name'}</b><br>
+                        <small style="color: #64748b;">${student.email || 'No Email'}</small><br>
+                        <small style="color: #6c63ff; font-weight: bold;">${student.collegeName || 'N/A'}</small>
                     </td>
                     <td>
-                        <small><b>F:</b> ${student.fatherName}</small><br>
-                        <small><b>M:</b> ${student.motherName}</small>
+                        <small><b>F:</b> ${student.fatherName || '---'}</small><br>
+                        <small><b>M:</b> ${student.motherName || '---'}</small>
                     </td>
-                    <td><small style="color: #64748b;">${student.address}</small></td>
+                    <td><small style="color: #64748b;">${student.address || '---'}</small></td>
                     <td style="text-align: center;">
                         <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
                             <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px; background: #10b981;" onclick="approveStudent('${student._id}')">
