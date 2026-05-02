@@ -73,18 +73,6 @@ async function loadApprovedLeaves() {
 }
 
 // Mark Gate (Manual Button)
-async function markGate(requestId, status) {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/guard/update-gate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ requestId, gateStatus: status })
-        });
-        if(res.ok) {
-            loadApprovedLeaves();
-        }
-    } catch (err) { console.error("Error marking gate", err); }
-}
 
 // --- QR SCANNER LOGIC ---
 async function startScanner() {
