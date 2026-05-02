@@ -98,9 +98,9 @@ async function loadActiveStudents() {
                         <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
                             <i class="fas fa-check-circle"></i> Mark ${nextStatus}
                         </button>
-                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}')">
-                            <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
-                        </button>
+                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}', '${s.name}')">
+    <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
+</button>
                     </td>
                 </tr>
             `;
@@ -121,9 +121,16 @@ async function updateFeesStatus(id, newStatus) {
 // 2. PERMANENT EXIT & EX-STUDENTS
 // ==========================================
 
-function openExitModal(id) {
+function openExitModal(id, name) {
     selectedStudentId = id;
+    
+    document.getElementById('exitStudentName').innerText = name; 
+    
     document.getElementById('exitModal').style.display = 'block';
+}
+
+function closeModal() { 
+    document.getElementById('exitModal').style.display = 'none'; 
 }
 
 function closeModal() { document.getElementById('exitModal').style.display = 'none'; }
