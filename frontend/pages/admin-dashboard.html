@@ -20,6 +20,9 @@
         </div>
 
         <nav>
+            <!-- 🚀 NEW ADMISSION TAB -->
+            <a onclick="showPanel('admissions', this)"><i class="fas fa-clipboard-list icon"></i> <span class="nav-text">New Admissions</span></a>
+            
             <a class="active" onclick="showPanel('add-user', this)"><i class="fas fa-user-plus icon"></i> <span class="nav-text">Students</span></a>
             <a onclick="showPanel('ex-students', this)"><i class="fas fa-user-graduate icon"></i> <span class="nav-text">Ex-Students</span></a>
             <a onclick="showPanel('staff', this)"><i class="fas fa-user-shield icon"></i> <span class="nav-text">Staff</span></a>
@@ -31,6 +34,33 @@
     </div>
 
     <div class="main">
+        <!-- ================= NEW ADMISSIONS PANEL ================= -->
+        <div id="panel-admissions" class="panel">
+            <div class="page-header">
+                <h1>New Admissions</h1>
+                <p>Review and approve new student registrations.</p>
+            </div>
+            
+            <div class="section">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Info</th>
+                                <th>Parents Details</th>
+                                <th>Address</th>
+                                <th style="text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admissionTableBody">
+                            <!-- JS se data yahan aayega -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= STUDENT MANAGEMENT PANEL ================= -->
         <div id="panel-add-user" class="panel active">
             <div class="page-header">
                 <h1>Student Management</h1>
@@ -38,7 +68,7 @@
             </div>
             
             <div class="section">
-                <div class="section-header"><h3>Register New Student</h3></div>
+                <div class="section-header"><h3>Register New Student Manually</h3></div>
                 <form id="studentForm" class="grid-form">
                     <div class="form-group"><label>Name</label><input type="text" id="sName" placeholder="Full Name" required></div>
                     <div class="form-group"><label>Email</label><input type="email" id="sEmail" placeholder="student@example.com" required></div>
@@ -129,6 +159,10 @@
                 </div>
             </div>
         </div>
+        
+        <!-- FIX: Footer Placeholder sahi jagah lagaya (main ke end me) -->
+        <div id="footer-placeholder"></div>
+        
     </div>
 
     <!-- Modals -->
@@ -143,7 +177,6 @@
                 <button type="submit" class="btn btn-danger" style="width: 100%; margin-top: 20px; padding: 14px;">Confirm Exit</button>
             </form>
         </div>
-        <div id="footer-placeholder"></div>
     </div>
 
     <script src="../js/admin.js"></script>
