@@ -199,5 +199,24 @@ router.post('/reject-student', async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 });
-
+// --- Edit/Update Student Details ---
+router.put('/update-student', async (req, res) => {
+    try {
+        const { studentId, updateData } = req.body;
+        
+        // $set ka use karte hain taaki sirf wahi detail change ho jo bheji gayi hai
+        const updatedStudent = await Student.findByIdAndUpdate(
+            studentId, 
+            { $set: updateData }, 
+            { new: true }
+        );
+        
+        if (!updatedStudent) return res.status(404).json({ success: false, message: "Student not found" });
+        
+        res.json({ success: true, message: "Student details updated successfully!" });
+    } catch (err) {
+        console.error("Update Error:", err);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+});
 module.exports = router;
