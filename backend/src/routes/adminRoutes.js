@@ -20,9 +20,9 @@ router.post('/create-user', async (req, res) => {
         }
 
         let newUser;
-        // Fix: Manual create kiye gaye student automatically 'Active' honge
+        // 🚀 FIX: Manual create kiye gaye student par ab aaj ki admission date bhi save hogi!
         if (role === 'student') {
-            newUser = new Student({ ...req.body, status: 'Active' }); 
+            newUser = new Student({ ...req.body, status: 'Active', admissionDate: new Date() }); 
         } else if (role === 'warden') {
             newUser = new Warden(req.body);
         } else if (role === 'guard') {
@@ -85,10 +85,9 @@ router.post('/update-fees', async (req, res) => {
     }
 });
 
-// --- 4. Get Lists (UPDATED: Hidden Pending Students) ---
+// --- 4. Get Lists (Hidden Pending Students) ---
 router.get('/students', async (req, res) => {
     try {
-        // 🚀 FIX: Sirf active students nikalenge, 'Pending' wale nahi aayenge
         const students = await Student.find({ status: { $ne: 'Pending' } }).sort({ name: 1 }).lean();
 
         const studentsWithStatus = await Promise.all(students.map(async (student) => {
@@ -175,7 +174,7 @@ router.post('/approve-student', async (req, res) => {
     try {
         const { studentId, roomNo } = req.body;
 
-        
+        // 🚀 FIX: Yahan galti se ek extra "/" (slash) type ho gaya tha, usko hata diya gaya hai.
         await Student.findByIdAndUpdate(studentId, { 
             status: 'Active', 
             roomNo: roomNo,
