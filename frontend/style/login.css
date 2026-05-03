@@ -16,47 +16,32 @@
 body {
     background: var(--deep-bg);
     color: var(--text-main);
-    overflow-y: auto; /* Allow scrolling if form gets big on small screens */
+    overflow-y: auto; 
+    overflow-x: hidden;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Background Canvas positioning */
-#bgCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-}
+#bgCanvas { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
 
 .login-wrapper {
-    width: 100%;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
+    width: 100%; padding: 20px; display: flex; justify-content: center;
+    align-items: center; position: relative; z-index: 10;
 }
 
-/* Glassmorphism Card Design */
+/* Glass Card */
 .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    padding: 45px 35px;
-    border-radius: 35px;
-    border: 1px solid var(--glass-border);
-    width: 100%;
-    max-width: 420px; 
-    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-    text-align: center;
-    animation: floatIn 0.8s ease-out;
-    transition: max-width 0.4s ease; /* Smooth width change */
+    background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+    padding: 45px 35px; border-radius: 35px; border: 1px solid var(--glass-border);
+    width: 100%; max-width: 400px; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    text-align: center; animation: floatIn 0.8s ease-out; transition: var(--transition);
+    position: relative; z-index: 5;
 }
+
+/* 🚀 FIX: Registration ke liye form chouda (wide) karne wali class */
+.glass-card.wide-card { max-width: 600px; }
 
 @keyframes floatIn {
     from { opacity: 0; transform: translateY(40px); }
@@ -64,120 +49,109 @@ body {
 }
 
 .login-header { margin-bottom: 35px; }
-
 .logo { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 5px; }
 .logo span { color: var(--accent); text-shadow: 0 0 15px rgba(0, 242, 254, 0.5); }
 .login-header p { color: var(--text-dim); font-size: 14px; }
 
 .login-form { display: flex; flex-direction: column; gap: 15px; }
-
-/* Grid for forms (2 columns on PC, 1 on Mobile) */
-.grid-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
+.grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
 .input-group { position: relative; display: flex; align-items: center; width: 100%; }
 
 .input-group .icon {
-    position: absolute;
-    left: 20px;
-    color: var(--text-dim);
-    font-size: 16px;
-    pointer-events: none;
-    transition: var(--transition);
+    position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+    color: var(--text-dim); font-size: 16px; pointer-events: none; transition: var(--transition);
+}
+/* 🚀 FIX: Textarea ke icon ka alignment */
+.input-group textarea ~ .icon { top: 20px; transform: none; }
+
+.input-group input, .input-group select, .input-group textarea {
+    width: 100%; padding: 16px 16px 16px 50px; background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--glass-border); border-radius: 16px;
+    color: var(--text-main); font-size: 15px; outline: none; transition: var(--transition);
 }
 
-/* Added textarea support to match input fields */
-.input-group input, 
-.input-group select, 
-.input-group textarea {
-    width: 100%;
-    padding: 16px 16px 16px 50px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    color: var(--text-main);
-    font-size: 15px;
-    outline: none;
-    transition: var(--transition);
-}
-
-.input-group textarea {
-    resize: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-}
+.input-group textarea { resize: none; font-family: 'Plus Jakarta Sans', sans-serif; }
 
 .input-group select {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 18px top 50%;
-    background-size: 12px auto;
-    cursor: pointer;
+    background-repeat: no-repeat; background-position: right 18px top 50%; background-size: 12px auto; cursor: pointer;
 }
-
 .input-group select option { background: #1e1e2f; color: white; }
 
-.input-group input:focus, 
-.input-group select:focus, 
-.input-group textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-    background: rgba(0, 0, 0, 0.5);
+.input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); background: rgba(0, 0, 0, 0.5);
 }
-
-.input-group input:focus ~ .icon, 
-.input-group select:focus ~ .icon, 
-.input-group textarea:focus ~ .icon {
+.input-group input:focus ~ .icon, .input-group select:focus ~ .icon, .input-group textarea:focus ~ .icon {
     color: var(--accent);
 }
 
 .btn-main {
-    background: linear-gradient(to right, var(--primary), var(--accent));
-    color: white;
-    border: none;
-    padding: 16px;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 5px;
-    box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+    background: linear-gradient(to right, var(--primary), var(--accent)); color: white; border: none;
+    padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer;
+    transition: var(--transition); display: flex; justify-content: center; align-items: center; gap: 10px;
+    margin-top: 5px; box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
 }
-
-.btn-main:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 242, 254, 0.4);
-}
+.btn-main:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0, 242, 254, 0.4); }
 
 .login-footer { margin-top: 30px; }
-
 .login-footer a {
-    color: var(--text-dim);
-    text-decoration: none;
-    font-size: 14px;
-    transition: var(--transition);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    color: var(--text-dim); text-decoration: none; font-size: 14px; transition: var(--transition);
+    display: inline-flex; align-items: center; gap: 8px;
 }
-
 .login-footer a:hover { color: var(--accent); }
 
-/* Mobile Optimization */
-@media (max-width: 650px) {
-    .grid-row { grid-template-columns: 1fr; gap: 15px; } /* Stack inputs on small screens */
+/* ==========================================================
+   🚀 Desktop UI (Circular Stages) - Ye missing tha!
+   ========================================================== */
+.desktop-stages-container { display: none; } /* Mobile par hide rahega */
+
+@media (min-width: 1024px) {
+    .login-wrapper { width: 1000px; height: 650px; }
+
+    .desktop-stages-container {
+        display: block; position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%); width: 100%; height: 100%;
+        z-index: 1; pointer-events: none;
+    }
+
+    .center-ring {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 650px; height: 650px; border: 2px dashed rgba(0, 242, 254, 0.4);
+        border-radius: 50%; box-shadow: inset 0 0 50px rgba(0, 242, 254, 0.1);
+        animation: spinRing 80s linear infinite;
+    }
+    @keyframes spinRing { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+    .stage-box {
+        position: absolute; display: flex; align-items: center; gap: 15px;
+        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+        padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 220px;
+    }
+    .stage-icon {
+        width: 50px; height: 50px; min-width: 50px; background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: 50%; display: flex; justify-content: center; align-items: center;
+        font-size: 20px; color: white; box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+    }
+    .stage-text { font-weight: 700; font-size: 14px; color: var(--text-main); text-align: left; line-height: 1.2; }
+    .stage-text small { font-size: 11px; color: var(--text-dim); font-weight: 400; }
+    .right-stage .stage-text { text-align: right; }
+
+    /* Positions */
+    .stage-1 { top: 10%; left: 0; }
+    .stage-2 { top: 45%; left: -60px; }
+    .stage-3 { bottom: 10%; left: 0; }
+    .stage-4 { top: 10%; right: 0; flex-direction: row-reverse; }
+    .stage-5 { top: 45%; right: -60px; flex-direction: row-reverse; }
+    .stage-6 { bottom: 10%; right: 0; flex-direction: row-reverse; }
 }
 
+/* Mobile Optimizations */
+@media (max-width: 650px) { .grid-row { grid-template-columns: 1fr; gap: 15px; } }
 @media (max-width: 480px) {
-    body { align-items: flex-start; padding-top: 20px; } /* Prevent cut-off on small mobiles */
+    body { align-items: flex-start; padding-top: 20px; }
     .glass-card { padding: 35px 25px; border-radius: 25px; }
     .logo { font-size: 32px; }
     .btn-main { padding: 15px; font-size: 15px; }
