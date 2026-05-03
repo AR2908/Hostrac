@@ -273,3 +273,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Popup Kholne ka function
+function showCustomAlert(title, message) {
+    document.getElementById('customAlertTitle').innerHTML = title;
+    document.getElementById('customAlertMessage').innerHTML = message;
+    document.getElementById('customAlertOverlay').style.display = 'flex';
+}
+
+// Popup Band karne ka function
+function closeCustomAlert() {
+    document.getElementById('customAlertOverlay').style.display = 'none';
+}
