@@ -12,6 +12,7 @@ const studentSchema = new mongoose.Schema({
     fatherName: { type: String, default: '-' },
     motherName: { type: String, default: '-' },
     status: { type: String, default: 'Active' },
+    admissionDate: { type: Date },
     address: { type: String, default: '-' }
 }, { timestamps: true });
 
