@@ -105,7 +105,7 @@ async function loadMyHistory() {
             if (lastRequestStatus !== "" && safeStatus !== lastRequestStatus) {
                 bell.play().catch(e => {});
                 // Optional: Yahan bhi custom alert laga sakte hain baad mein
-                alert(`📢 Update: Your outpass is now ${latestRequest.status.toUpperCase()}`);
+                
             }
             lastRequestStatus = safeStatus;
         } else {
