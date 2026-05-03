@@ -95,6 +95,10 @@ async function loadActiveStudents() {
                     <td><span class="${isPaid ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></td>
                    
                     <td style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                    <button class="btn btn-warning" style="padding: 8px 12px; font-size: 12px; background: #f59e0b; color: white; border: none;" 
+    onclick="openEditModal('${s._id}', '${s.name}', '${s.mobile}', '${s.roomNo}')">
+    <i class="fas fa-edit"></i> Edit
+</button>
                         <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
                             <i class="fas fa-check-circle"></i> Mark ${nextStatus}
                         </button>
