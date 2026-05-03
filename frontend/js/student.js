@@ -104,6 +104,7 @@ async function loadMyHistory() {
 
             if (lastRequestStatus !== "" && safeStatus !== lastRequestStatus) {
                 bell.play().catch(e => {});
+                // Optional: Yahan bhi custom alert laga sakte hain baad mein
                 alert(`📢 Update: Your outpass is now ${latestRequest.status.toUpperCase()}`);
             }
             lastRequestStatus = safeStatus;
@@ -185,7 +186,7 @@ async function loadMyHistory() {
 const applyForm = document.getElementById('applyForm');
 if(applyForm) {
     applyForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Default page reload roko
+        e.preventDefault(); 
         
         // --- BLOCKER: Check for existing active outpass ---
         const recentTable = document.getElementById('recentTable');
@@ -202,11 +203,10 @@ if(applyForm) {
 
             if (isActive && !isFinished) {
                 alert("⚠️ WARNING: Your outpass is already active or pending! You cannot apply again until you return.");
-                return; // 🛑 Yahi par execution rok dega, API call nahi hogi
+                return; 
             }
         }
         
-        // Agar yahan tak aaya, matlab validation pass! Ab API hit karo
         const reason = document.getElementById('reason').value;
         const leaveDate = document.getElementById('leaveDate').value;
         const returnDate = document.getElementById('returnDate').value;
@@ -226,12 +226,14 @@ if(applyForm) {
             const data = await response.json();
 
             if (data.success) {
-                alert("✅ Outpass Applied Successfully!");
+                // 🚀 FIX: Purane alert ko hata kar naya showCustomAlert call kiya gaya hai!
+                showCustomAlert("Success", "Outpass Applied Successfully! It is waiting for Warden's approval.");
+                
                 applyForm.reset();
                 showPanel('dashboard', document.querySelector('nav a:first-child'));
                 loadMyHistory(); 
             } else {
-                alert("❌ Failed: " + data.message);
+                alert("❌ Failed: " + data.message); // Isko baad me design karenge agar zaroorat padi
             }
         } catch (err) {
             console.error("Apply Error:", err);
@@ -256,18 +258,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const returnInput = document.getElementById('returnDate');
 
     if (leaveInput && returnInput) {
-        // Local Date nikalne ka solid tarika (UTC Bypass)
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
         const dd = String(now.getDate()).padStart(2, '0');
-        const localToday = `${yyyy}-${mm}-${dd}`; // YYYY-MM-DD format
+        const localToday = `${yyyy}-${mm}-${dd}`; 
 
-        // Min attribute me current local date lagao
         leaveInput.setAttribute('min', localToday);
         returnInput.setAttribute('min', localToday);
 
-        // Leave date badalne par Return date ki limit bhi update ho
         leaveInput.addEventListener('change', function() {
             returnInput.setAttribute('min', this.value);
         });
