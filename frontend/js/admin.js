@@ -346,5 +346,54 @@ async function rejectStudent(studentId) {
         }
     }
 }
+// ==========================================
+// 🚀 EDIT STUDENT LOGIC
+// ==========================================
 
+// Popup Kholna aur purana data bharna
+function openEditModal(id, name, mobile, roomNo) {
+    document.getElementById('editStdId').value = id;
+    document.getElementById('editStdName').value = name;
+    
+    // Agar mobile 'undefined' ya '-' hai, toh blank dikhaye
+    document.getElementById('editStdMobile').value = (mobile && mobile !== '-' && mobile !== 'undefined') ? mobile : '';
+    document.getElementById('editStdRoom').value = roomNo;
+    
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+// Popup Band karna
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+// Naya data backend par bhejna
+async function submitEditStudent() {
+    const id = document.getElementById('editStdId').value;
+    const updateData = {
+        name: document.getElementById('editStdName').value,
+        mobile: document.getElementById('editStdMobile').value,
+        roomNo: document.getElementById('editStdRoom').value
+    };
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/update-student`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ studentId: id, updateData: updateData })
+        });
+        
+        const data = await res.json();
+        if (data.success) {
+            alert("✅ Student details updated successfully!");
+            closeEditModal();
+            loadActiveStudents(); // Table ko refresh karein
+        } else {
+            alert("❌ Failed to update: " + data.message);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Server Error while updating!");
+    }
+}
 window.onload = loadActiveStudents;
