@@ -174,10 +174,14 @@ router.get('/pending-students', async (req, res) => {
 router.post('/approve-student', async (req, res) => {
     try {
         const { studentId, roomNo } = req.body;
+
+        /
         await Student.findByIdAndUpdate(studentId, { 
             status: 'Active', 
-            roomNo: roomNo 
+            roomNo: roomNo,
+            admissionDate: new Date() 
         });
+
         res.status(200).json({ success: true, message: "Student Approved & Room Allotted!" });
     } catch (err) {
         console.error("Approve Error:", err);
