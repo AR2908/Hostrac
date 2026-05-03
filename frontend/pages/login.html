@@ -6,7 +6,6 @@
     <title>HOSTRAC | Secure Login & Registration</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="../style/login.css">
 </head>
 <body>
@@ -15,6 +14,7 @@
 
     <div class="login-wrapper">
 
+        <!-- Desktop Stages Background -->
         <div class="desktop-stages-container">
             <div class="center-ring"></div>
             
@@ -44,8 +44,10 @@
                 <div class="stage-text">Permanent Exit<br><small>(Ex-Student)</small></div>
             </div>
         </div>
+
         <div class="glass-card" id="mainCard">
             
+            <!-- Login Section -->
             <div id="loginSection">
                 <div class="login-header">
                     <div class="logo">HOST<span>RAC</span></div>
@@ -85,6 +87,7 @@
                 </form>
             </div>
 
+            <!-- Registration Section -->
             <div id="registerSection" style="display: none;">
                 <div class="login-header" style="margin-bottom: 20px;">
                     <div class="logo" style="font-size: 28px;">New <span>Admission</span></div>
@@ -117,9 +120,16 @@
                         <textarea id="regAddress" placeholder="Full Permanent Address" rows="2" required></textarea>
                     </div>
                     
-                    <div class="input-group">
-                        <i class="fas fa-envelope icon"></i>
-                        <input type="email" id="regEmail" placeholder="Email Address" required>
+                    <!-- 🚀 FIX: Mobile and Email side by side -->
+                    <div class="grid-row">
+                        <div class="input-group">
+                            <i class="fas fa-phone-alt icon"></i>
+                            <input type="tel" id="regMobile" placeholder="Mobile Number" required pattern="[0-9]{10}" title="Enter 10 digit mobile number">
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-envelope icon"></i>
+                            <input type="email" id="regEmail" placeholder="Email Address" required>
+                        </div>
                     </div>
 
                     <div class="grid-row">
