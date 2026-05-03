@@ -175,7 +175,7 @@ router.post('/approve-student', async (req, res) => {
     try {
         const { studentId, roomNo } = req.body;
 
-        /
+        
         await Student.findByIdAndUpdate(studentId, { 
             status: 'Active', 
             roomNo: roomNo,
