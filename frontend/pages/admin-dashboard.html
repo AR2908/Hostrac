@@ -185,5 +185,35 @@
 
     <script src="../js/admin.js"></script>
     <script src="../js/login.js"></script>
+    <!-- ================= EDIT STUDENT MODAL ================= -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 25px; border-radius: 15px; width: 400px; max-width: 90%; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h3 style="margin-bottom: 20px; border-bottom: 2px solid #6c63ff; padding-bottom: 10px;">Edit Student Details</h3>
+        
+        <form id="editStudentForm">
+            <input type="hidden" id="editStdId">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold; font-size: 13px;">Full Name</label>
+                <input type="text" id="editStdName" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-top: 5px;" required>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold; font-size: 13px;">Mobile Number</label>
+                <input type="text" id="editStdMobile" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-top: 5px;" required>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold; font-size: 13px;">Room No.</label>
+                <input type="text" id="editStdRoom" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-top: 5px;">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 25px;">
+                <button type="button" onclick="closeEditModal()" style="background: #e2e8f0; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">Cancel</button>
+                <button type="button" onclick="submitEditStudent()" style="background: #6c63ff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold;">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>
