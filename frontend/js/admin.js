@@ -337,7 +337,7 @@ async function confirmRoomAllotment() {
             closeRoomModal(); // Pehle room wala popup band karo
             
             // Fir Success wala Premium popup dikhao
-            showCustomAlert("Approved! 🎉", `Student has been approved and allotted Room: ${roomNo}`);
+            showCustomAlert("Approved!", `Allotted Room: ${roomNo}`);
             
             loadPendingAdmissions(); 
             loadActiveStudents(); 
