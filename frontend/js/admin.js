@@ -299,11 +299,29 @@ async function loadPendingAdmissions() {
     }
 }
 
-async function approveStudent(studentId) {
-    const roomNo = prompt("✅ Please allot a Room Number for this student:");
+// ==========================================
+// 🚀 NEW ROOM ALLOTMENT LOGIC
+// ==========================================
+
+// 1. Popup Kholna
+function approveStudent(studentId) {
+    document.getElementById('allotStudentId').value = studentId;
+    document.getElementById('allotRoomNo').value = ""; // Purana data clear karna
+    document.getElementById('roomAllotModal').style.display = 'flex';
+}
+
+// 2. Popup Band karna
+function closeRoomModal() {
+    document.getElementById('roomAllotModal').style.display = 'none';
+}
+
+// 3. API Call aur Data Save Karna
+async function confirmRoomAllotment() {
+    const studentId = document.getElementById('allotStudentId').value;
+    const roomNo = document.getElementById('allotRoomNo').value;
     
     if (!roomNo || roomNo.trim() === "") {
-        alert("⚠️ Room number is required to approve a student!");
+        alert("⚠️ Please enter a room number!");
         return;
     }
 
@@ -316,7 +334,11 @@ async function approveStudent(studentId) {
 
         const data = await res.json();
         if (data.success) {
-            alert("🎉 Student Approved Successfully!");
+            closeRoomModal(); // Pehle room wala popup band karo
+            
+            // Fir Success wala Premium popup dikhao
+            showCustomAlert("Approved! 🎉", `Student has been approved and allotted Room: ${roomNo}`);
+            
             loadPendingAdmissions(); 
             loadActiveStudents(); 
         } else {
@@ -324,9 +346,23 @@ async function approveStudent(studentId) {
         }
     } catch (err) {
         console.error("Approval Error:", err);
-        alert("Server Error!");
+        alert("Server Error! Check your connection.");
     }
 }
+
+// ==========================================
+// SUCCESS POPUP LOGIC
+// ==========================================
+function showCustomAlert(title, message) {
+    document.getElementById('customAlertTitle').innerHTML = title;
+    document.getElementById('customAlertMessage').innerHTML = message;
+    document.getElementById('customAlertOverlay').style.display = 'flex';
+}
+
+function closeCustomAlert() {
+    document.getElementById('customAlertOverlay').style.display = 'none';
+}
+
 
 async function rejectStudent(studentId) {
     if(confirm("❌ Are you sure you want to reject and delete this registration request?")) {
