@@ -1,12 +1,6 @@
-/**
- * HOSTRAC - Premium Login, Registration & Animation Logic
- */
 
-const BASE_URL = "https://hostrac.onrender.com"; // Yaha apna backend URL
 
-// ==========================================
-// 1. LOGIN API LOGIC
-// ==========================================
+const BASE_URL = "https://hostrac.onrender.com"; 
 async function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -14,7 +8,7 @@ async function login() {
     const btn = document.getElementById('loginBtn');
 
     if (!role) {
-        alert("Please select your role first!");
+        showSmartAlert('warning', 'Role Missing', 'Please select your role first!');
         return;
     }
 
@@ -47,13 +41,13 @@ async function login() {
             else window.location.href = 'student-dashboard.html';
 
         } else {
-            alert("❌ Invalid Credentials! " + (data.message || ""));
+            showSmartAlert('error', 'Login Failed', data.message || "Invalid Credentials!");
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
     } catch (err) {
         console.error("Login Error:", err);
-        alert("Connection Error! Backend is not reachable.");
+        showSmartAlert('error', 'Network Error', 'Connection Error! Backend is not reachable.');
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
@@ -152,20 +146,19 @@ document.addEventListener('DOMContentLoaded', () => {
 // 5. REGISTRATION & FORM TOGGLE LOGIC
 // ==========================================
 
-// 🚀 FIX: Yahan wide-card logic add kar diya gaya hai
 function toggleForms(type) {
     const loginSec = document.getElementById('loginSection'); 
     const regSec = document.getElementById('registerSection');
-    const card = document.getElementById('mainCard'); // Card ko pakda
+    const card = document.getElementById('mainCard'); 
     
     if(type === 'register') {
         if(loginSec) loginSec.style.display = 'none';
         if(regSec) regSec.style.display = 'block';
-        if(card) card.classList.add('wide-card'); // Card ko chauda kiya
+        if(card) card.classList.add('wide-card'); 
     } else {
         if(loginSec) loginSec.style.display = 'block';
         if(regSec) regSec.style.display = 'none';
-        if(card) card.classList.remove('wide-card'); // Card ko normal kiya
+        if(card) card.classList.remove('wide-card'); 
     }
 }
 
@@ -180,17 +173,18 @@ if (registerForm) {
 
         // Validation: Password match
         if (password !== confirmPass) {
-            alert("❌ Passwords do not match! Please check again.");
+            showSmartAlert('warning', 'Password Mismatch', 'Passwords do not match! Please check again.');
             return;
         }
 
-        // Student Data Object (Room Number is intentionally MISSING)
+        // Student Data Object
         const studentData = {
             name: document.getElementById('regName').value,
             college: document.getElementById('regCollege').value,
             fatherName: document.getElementById('regFather').value,
             motherName: document.getElementById('regMother').value,
             address: document.getElementById('regAddress').value,
+            mobile: document.getElementById('regMobile') ? document.getElementById('regMobile').value : '', // Fixed missing mobile safely
             email: document.getElementById('regEmail').value,
             password: password,
             role: 'student',
@@ -198,7 +192,6 @@ if (registerForm) {
         };
 
         try {
-            // FIX: Use BASE_URL insted of API_BASE_URL
             const res = await fetch(`${BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -208,15 +201,15 @@ if (registerForm) {
             const data = await res.json();
 
             if (res.ok) {
-                alert("✅ Registration Successful!\nYour request has been sent to the Admin. You can login once your details are verified");
+                showSmartAlert('success', 'Registration Successful!', 'Your request has been sent to the Admin. You can login once your details are verified.');
                 registerForm.reset();
-                toggleForms('login'); // Form submit hone ke baad wapas login page dikhao
+                toggleForms('login'); 
             } else {
-                alert("❌ Registration Failed: " + data.message);
+                showSmartAlert('error', 'Registration Failed', data.message);
             }
         } catch (err) {
             console.error(err);
-            alert("Server Error! Check backend connection.");
+            showSmartAlert('error', 'Server Error', 'Check backend connection.');
         }
     });
 }
