@@ -1,7 +1,5 @@
 const user = JSON.parse(localStorage.getItem('user'));
 let selectedStudentId = null;
-
-// Render ka URL yahan dalein
 const API_BASE_URL = 'https://hostrac.onrender.com';
 
 if (!user || user.role !== 'admin') {
@@ -81,7 +79,7 @@ async function loadActiveStudents() {
                 ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
                 : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
             
-            // Text ko safe banana taaki single quote (') click karne par code na tode
+        
             const safeName = (s.name || '').replace(/'/g, "\\'");
             const safeEmail = (s.email || '').replace(/'/g, "\\'");
             const safeMobile = (s.mobile || '').replace(/'/g, "\\'");
@@ -158,7 +156,7 @@ async function confirmPermanentExit() {
     }
 }
 
-// 🚀 NEW LOGIC: 24-hour time ko AM/PM mein badalne ka function
+// 24-hour time ko AM/PM mein badalne ka function
 function formatTimeAMPM(time24) {
     if (!time24) return "---";
     const [hourString, minute] = time24.split(':');
@@ -166,7 +164,7 @@ function formatTimeAMPM(time24) {
     const ampm = hour >= 12 ? 'PM' : 'AM';
     
     hour = hour % 12;
-    hour = hour ? hour : 12; // 0 baje ko 12 banayega
+    hour = hour ? hour : 12; 
     const formattedHour = hour.toString().padStart(2, '0');
     
     return `${formattedHour}:${minute} ${ampm}`;
@@ -186,24 +184,6 @@ async function loadExStudents() {
                     <td>${s.collegeName}</td>
                     <td>${formatDate(s.exitDate)}</td>
                     <td>${formatTimeAMPM(s.exitTime)}</td> 
-                </tr>`;
-        });
-    } catch (err) { console.error("Load Ex-Students Failed", err); }
-}
-async function loadExStudents() {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/admin/ex-students-list`);
-        const list = await res.json();
-        const tbody = document.getElementById('exStudentTable');
-        tbody.innerHTML = '';
-        list.forEach(s => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><b>${s.name}</b></td>
-                    <td>${s.roomNo}</td>
-                    <td>${s.collegeName}</td>
-                    <td>${formatDate(s.exitDate)}</td>
-                    <td>${s.exitTime}</td>
                 </tr>`;
         });
     } catch (err) { console.error("Load Ex-Students Failed", err); }
@@ -449,6 +429,16 @@ async function submitEditStudent() {
     } catch (err) {
         showSmartAlert('error', 'Server Error', 'Failed to update student details.');
     }
+}
+
+// ==========================================
+// LOGOUT LOGIC (With Smart Confirm)
+// ==========================================
+function logout() {
+    showSmartConfirm("Logout?", "Are you sure you want to log out of your account?", function() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    });
 }
 
 window.onload = loadActiveStudents;
