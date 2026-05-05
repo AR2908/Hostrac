@@ -73,13 +73,24 @@ async function loadActiveStudents() {
             const isPaid = s.feesStatus === 'Paid';
             const nextStatus = isPaid ? 'Unpaid' : 'Paid';
 
+            // Live Status Style (In/Out)
             const isOut = s.currentStatus === 'Out';
             const statusLabel = isOut ? 'OUT 🚩' : 'IN ✅';
             const statusStyle = isOut 
                 ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
                 : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
             
-        
+            const feesBadgeStyle = isPaid 
+                ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" // Paid = Green
+                : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;"; // Unpaid = Red
+
+            const feesButtonStyle = isPaid 
+                ? "background: #e74c3c; color: white; padding: 8px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;" // Paid hai, toh "Mark Unpaid" Button Red hoga
+                : "background: #27ae60; color: white; padding: 8px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;"; // Unpaid hai, toh "Mark Paid" Button Green hoga
+            
+            const feesIcon = isPaid ? "fas fa-times-circle" : "fas fa-check-circle";
+
+            // Text ko safe banana taaki single quote (') click karne par code na tode
             const safeName = (s.name || '').replace(/'/g, "\\'");
             const safeEmail = (s.email || '').replace(/'/g, "\\'");
             const safeMobile = (s.mobile || '').replace(/'/g, "\\'");
@@ -98,17 +109,22 @@ async function loadActiveStudents() {
                             ${statusLabel}
                         </span>
                     </td>
-                    <td><span class="${isPaid ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></td>
+                    
+                    <!-- Yahan Updated Fees Badge lagaya hai -->
+                    <td><span style="${feesBadgeStyle}">${s.feesStatus}</span></td>
                    
                     <td style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                        <button class="btn btn-warning" style="padding: 8px 12px; font-size: 12px; background: #f59e0b; color: white; border: none;" 
+                        <button class="btn btn-warning" style="padding: 8px 12px; font-size: 12px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer;" 
                             onclick="openEditModal('${s._id}', '${safeName}', '${safeEmail}', '${safeMobile}', '${safeRoom}', '${safeCollege}', '${safeFather}', '${safeMother}', '${safeAddress}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
-                            <i class="fas fa-check-circle"></i> Mark ${nextStatus}
+                        
+                        <!-- Yahan Updated Fees Action Button lagaya hai -->
+                        <button class="btn" style="${feesButtonStyle}" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
+                            <i class="${feesIcon}"></i> Mark ${nextStatus}
                         </button>
-                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}', '${safeName}')">
+                        
+                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="openExitModal('${s._id}', '${safeName}')">
                             <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
                         </button>
                     </td>
