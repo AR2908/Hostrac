@@ -263,12 +263,11 @@ if(applyForm) {
     });
 }
 
-// 🚀 FIX: Logout Logic added with Confirm
 function logout() {
-    if (confirm("Do you want to logout?")) {
+    showSmartConfirm("Logout?", "Are you sure you want to log out?", function() {
         localStorage.clear();
         window.location.href = 'login.html';
-    }
+    });
 }
 
 setInterval(loadMyHistory, 10000);
