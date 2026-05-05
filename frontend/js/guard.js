@@ -1,7 +1,3 @@
-/**
- * Hostrac - Security Guard Dashboard (With QR Scanner & Sound)
- */
-
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 let html5QrCode;
@@ -43,15 +39,12 @@ async function loadApprovedLeaves() {
             if(!req.studentId) return;
 
             let currentStatus = "Waiting at Gate";
-            let actionHtml = `<button class="btn" style="background:#f52f46; color:white;" onclick="markGate('${req._id}', 'Out')">Mark EXIT (OUT)</button>`;
             
             if (req.exitTime && !req.entryTime) {
                 currentStatus = `<b style="color:#d63031">OUT 🚩</b>`;
-                actionHtml = `<button class="btn" style="background:#27ae60; color:white;" onclick="markGate('${req._id}', 'In')">Mark ENTRY (IN)</button>`;
                 outCount++;
             } else if (req.entryTime) {
                 currentStatus = `<b style="color:#27ae60">IN ✅ (Completed)</b>`;
-                actionHtml = `---`;
                 inCount++;
             }
 
@@ -61,7 +54,6 @@ async function loadApprovedLeaves() {
                     <td>${req.studentId.roomNo}</td>
                     <td>${new Date(req.leaveDate).toLocaleDateString('en-GB')}</td>
                     <td>${currentStatus}</td>
-                    
                 </tr>`;
         });
 
@@ -71,8 +63,6 @@ async function loadApprovedLeaves() {
 
     } catch (err) { console.error(err); }
 }
-
-// Mark Gate (Manual Button)
 
 // --- QR SCANNER LOGIC ---
 async function startScanner() {
@@ -85,8 +75,8 @@ async function startScanner() {
         
         html5QrCode = new Html5Qrcode("reader");
         const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        
         // --- BROWSER AUDIO UNLOCK TRICK ---
-        // Button click hote hi ek micro-second ke liye sound play-pause karein
         scanSound.play().then(() => {
             scanSound.pause();
             scanSound.currentTime = 0;
@@ -108,12 +98,12 @@ function stopScanner() {
     }
 }
 
-// FINAL FIXED SCAN SUCCESS FUNCTION
+// FINAL FIXED SCAN SUCCESS FUNCTION (With Anti-Spoofing)
 async function onScanSuccess(decodedText) {
     // 🔊 1. Play Sound & Vibrate
     try {
-        scanSound.currentTime = 0; // Sound ko wapas start pe laye
-        scanSound.play(); // Play kare
+        scanSound.currentTime = 0; 
+        scanSound.play(); 
         
         if ("vibrate" in navigator) {
             navigator.vibrate(200); 
@@ -125,12 +115,28 @@ async function onScanSuccess(decodedText) {
     try {
         // 🛑 2. Stop Scanner
         stopScanner();
-        
         console.log("Scan Result: ", decodedText);
 
         // 🧠 3. Process QR Data
         const data = JSON.parse(decodedText); 
         
+        // 🛡️ 4. LIVE QR SECURITY CHECK (Anti-Screenshot)
+        if (data.timestamp) {
+            const currentTime = new Date().getTime();
+            const qrAge = currentTime - data.timestamp; // Kitna purana hai?
+            
+            // Agar 15 seconds (15000 ms) se zyada purana hai, toh Fake Entry hai!
+            if (qrAge > 15000) {
+                document.getElementById('scanResult').innerHTML = "❌ <b style='color: #e74c3c;'>FAKE ENTRY!</b> This QR is screenshot.";
+                return; // Code yahin ruk jayega, backend tak request nahi jayegi
+            }
+        } else {
+            // Agar purana static QR hai jisme timestamp nahi hai
+            document.getElementById('scanResult').innerHTML = "❌ <b style='color: #e74c3c;'>INVALID QR!</b> Invalid QR.";
+            return; 
+        }
+
+        // 🟢 5. Send to Backend if Valid
         const res = await fetch(`${API_BASE_URL}/api/guard/scan-qr`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -148,7 +154,7 @@ async function onScanSuccess(decodedText) {
         }
     } catch (err) {
         console.error("Scan Error:", err);
-        document.getElementById('scanResult').innerText = "❌ Invalid QR Code!";
+        document.getElementById('scanResult').innerText = "❌ Invalid or Corrupted QR Code!";
         stopScanner();
     }
 }
