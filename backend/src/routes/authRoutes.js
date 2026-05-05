@@ -43,35 +43,38 @@ router.post('/register', async (req, res) => {
 });
 
 // =========================================================
-// 🚀 NEW SMART CHANGE PASSWORD API 
+// 🚀 NEW SMART CHANGE PASSWORD API (FIXED)
 // =========================================================
 router.post('/change-password', async (req, res) => {
     try {
-        const { AdminId, role, currentPassword, newPassword } = req.body;
+        // FIX 1: Frontend 'userId' bhej raha tha, isliye ise userId kiya
+        const { userId, role, currentPassword, newPassword } = req.body;
 
-        // 1. Role ke hisaab se sahi Database Model chunein
+        // FIX 2: Role check safe kiya (uppercase/lowercase dono chalenge)
+        const checkRole = role ? role.toLowerCase() : '';
         let Model;
-        if (role === 'admin') Model = Admin;
-        else if (role === 'student') Model = Student;
-        else if (role === 'warden') Model = Warden;
-        else if (role === 'guard') Model = Guard;
-        else return res.status(400).json({ success: false, message: 'Invalid Admin Role!' });
+        
+        if (checkRole === 'admin') Model = Admin;
+        else if (checkRole === 'student') Model = Student;
+        else if (checkRole === 'warden') Model = Warden;
+        else if (checkRole === 'guard') Model = Guard;
+        else return res.status(400).json({ success: false, message: 'Invalid User Role!' });
 
-        // 2. Admin ko database mein dhundein
-        const Admin = await Model.findById(AdminId);
-        if (!Admin) {
-            return res.status(404).json({ success: false, message: 'Admin not found!' });
+        // FIX 3: Variable ka naam userDoc rakha taaki uper wale Admin Model se clash na ho
+        const userDoc = await Model.findById(userId);
+        if (!userDoc) {
+            return res.status(404).json({ success: false, message: 'Account not found!' });
         }
 
         // 3. Current Password ko simply match karein
-        if (Admin.password !== currentPassword) {
+        if (userDoc.password !== currentPassword) {
             return res.status(400).json({ success: false, message: 'Incorrect Current Password!' });
         }
 
         // 4. Naya Password simple text me save karein
-        Admin.password = newPassword;
+        userDoc.password = newPassword;
         
-        await Admin.save();
+        await userDoc.save();
         res.json({ success: true, message: 'Password updated successfully!' });
 
     } catch (error) {
