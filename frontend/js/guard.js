@@ -159,11 +159,11 @@ async function onScanSuccess(decodedText) {
     }
 }
 
-// Logout
 function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+    showSmartConfirm("Logout?", "Are you sure you want to log out?", function() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    });
 }
-
 // Init
 window.onload = loadApprovedLeaves;
