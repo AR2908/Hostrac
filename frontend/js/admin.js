@@ -1,7 +1,7 @@
 const user = JSON.parse(localStorage.getItem('user'));
 let selectedStudentId = null;
 
-// Render ka URL yahan dalein (e.g., 'https://hostrac-backend.onrender.com')
+// Render ka URL yahan dalein
 const API_BASE_URL = 'https://hostrac.onrender.com';
 
 if (!user || user.role !== 'admin') {
@@ -10,25 +10,22 @@ if (!user || user.role !== 'admin') {
     document.getElementById('adminDisplayName').innerText = user.name;
 }
 
-// Helper Function: Date ko readable banane ke liye
 function formatDate(dateString) {
     if (!dateString) return "-";
     const options = { day: '2-digit', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-GB', options);
 }
 
-// Sidebar Navigation
 function showPanel(id, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById('panel-' + id).classList.add('active');
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     el.classList.add('active');
 
-    // Tab Load hone par data fetch karna
     if (id === 'add-user') loadActiveStudents();
     if (id === 'ex-students') loadExStudents();
     if (id === 'staff') loadStaffMembers();
-    if (id === 'admissions') loadPendingAdmissions(); // 🚀 FIX: Admission load karne ka logic add kiya
+    if (id === 'admissions') loadPendingAdmissions();
 }
 
 document.getElementById('studentForm').addEventListener('submit', async (e) => {
@@ -45,7 +42,7 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
         roomNo: document.getElementById('sRoom').value,
         address: document.getElementById('sAddress').value,
         password: document.getElementById('sPass').value,
-        status: 'Active' // Manually add karne par seedha active hoga
+        status: 'Active' 
     };
 
     try {
@@ -56,13 +53,15 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
         });
         const data = await res.json();
         if (data.success) {
-            alert("✅ Student Registered Successfully!");
+            showSmartAlert('success', 'Success!', 'Student Registered Successfully!');
             document.getElementById('studentForm').reset();
             loadActiveStudents();
         } else {
-            alert("❌ Error: " + data.message);
+            showSmartAlert('error', 'Error!', data.message);
         }
-    } catch (err) { alert("Server Down!"); }
+    } catch (err) { 
+        showSmartAlert('error', 'Network Error', 'Server is down or unreachable!'); 
+    }
 });
 
 async function loadActiveStudents() {
@@ -76,13 +75,22 @@ async function loadActiveStudents() {
             const isPaid = s.feesStatus === 'Paid';
             const nextStatus = isPaid ? 'Unpaid' : 'Paid';
 
-            // --- LIVE STATUS LOGIC ---
             const isOut = s.currentStatus === 'Out';
             const statusLabel = isOut ? 'OUT 🚩' : 'IN ✅';
             const statusStyle = isOut 
                 ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
                 : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
             
+            // Text ko safe banana taaki single quote (') click karne par code na tode
+            const safeName = (s.name || '').replace(/'/g, "\\'");
+            const safeEmail = (s.email || '').replace(/'/g, "\\'");
+            const safeMobile = (s.mobile || '').replace(/'/g, "\\'");
+            const safeRoom = (s.roomNo || '').replace(/'/g, "\\'");
+            const safeCollege = (s.collegeName || '').replace(/'/g, "\\'");
+            const safeFather = (s.fatherName || '').replace(/'/g, "\\'");
+            const safeMother = (s.motherName || '').replace(/'/g, "\\'");
+            const safeAddress = (s.address || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
+
             tbody.innerHTML += `
                 <tr>
                     <td><b>${s.name}</b><br><small style="color:#636e72;">ID: ${s.email}</small></td>
@@ -95,16 +103,16 @@ async function loadActiveStudents() {
                     <td><span class="${isPaid ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></td>
                    
                     <td style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                    <button class="btn btn-warning" style="padding: 8px 12px; font-size: 12px; background: #f59e0b; color: white; border: none;" 
-    onclick="openEditModal('${s._id}', '${s.name}', '${s.mobile}', '${s.roomNo}')">
-    <i class="fas fa-edit"></i> Edit
-</button>
+                        <button class="btn btn-warning" style="padding: 8px 12px; font-size: 12px; background: #f59e0b; color: white; border: none;" 
+                            onclick="openEditModal('${s._id}', '${safeName}', '${safeEmail}', '${safeMobile}', '${safeRoom}', '${safeCollege}', '${safeFather}', '${safeMother}', '${safeAddress}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
                         <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px;" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
                             <i class="fas fa-check-circle"></i> Mark ${nextStatus}
                         </button>
-                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}', '${s.name}')">
-    <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
-</button>
+                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="openExitModal('${s._id}', '${safeName}')">
+                            <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
+                        </button>
                     </td>
                 </tr>
             `;
@@ -127,14 +135,8 @@ async function updateFeesStatus(id, newStatus) {
 
 function openExitModal(id, name) {
     selectedStudentId = id;
-    
     document.getElementById('exitStudentName').innerText = name; 
-    
     document.getElementById('exitModal').style.display = 'block';
-}
-
-function closeModal() { 
-    document.getElementById('exitModal').style.display = 'none'; 
 }
 
 function closeModal() { document.getElementById('exitModal').style.display = 'none'; }
@@ -142,7 +144,8 @@ function closeModal() { document.getElementById('exitModal').style.display = 'no
 async function confirmPermanentExit() {
     const date = document.getElementById('exitDate').value;
     const time = document.getElementById('exitTime').value;
-    if(!date || !time) return alert("Select Date & Time!");
+    
+    if(!date || !time) return showSmartAlert('warning', 'Missing Details', 'Please select Date & Time!');
 
     const res = await fetch(`${API_BASE_URL}/api/admin/mark-ex-student`, {
         method: 'POST',
@@ -150,7 +153,7 @@ async function confirmPermanentExit() {
         body: JSON.stringify({ studentId: selectedStudentId, exitDate: date, exitTime: time })
     });
     if ((await res.json()).success) {
-        alert("🚪 Moved to EX-Student");
+        showSmartAlert('success', 'Ex-Student Marked', 'Student successfully moved to EX-Student list.');
         closeModal();
         loadActiveStudents();
     }
@@ -197,13 +200,13 @@ document.getElementById('staffForm').addEventListener('submit', async (e) => {
         });
         const data = await res.json();
         if (data.success) {
-            alert("✅ Staff Registered Successfully!");
+            showSmartAlert('success', 'Success!', 'Staff Registered Successfully!');
             document.getElementById('staffForm').reset();
             loadStaffMembers();
         } else {
-            alert("❌ Error: " + data.message);
+            showSmartAlert('error', 'Error!', data.message);
         }
-    } catch (err) { alert("Server Error!"); }
+    } catch (err) { showSmartAlert('error', 'Network Error', 'Server is unreachable!'); }
 });
 
 async function loadStaffMembers() {
@@ -238,13 +241,13 @@ async function deleteStaffMember(role, id) {
             });
             const data = await res.json();
             if (data.success) {
-                alert("✅ Staff Removed!");
+                showSmartAlert('success', 'Removed!', 'Staff member removed successfully.');
                 loadStaffMembers();
             } else {
-                alert("❌ Error: " + data.message);
+                showSmartAlert('error', 'Error', data.message);
             }
         } catch (err) {
-            alert("Delete Failed! Backend check karein.");
+            showSmartAlert('error', 'Delete Failed', 'Check backend connection.');
         }
     }
 }
@@ -268,7 +271,6 @@ async function loadPendingAdmissions() {
         }
 
         students.forEach(student => {
-            // FIX: Yahan undefined se bachne ke liye collegeName aur fallbacks add kiye gaye hain
             tbody.innerHTML += `
                 <tr>
                     <td>
@@ -299,14 +301,10 @@ async function loadPendingAdmissions() {
     }
 }
 
-// ==========================================
-// 🚀 NEW ROOM ALLOTMENT LOGIC
-// ==========================================
-
 // 1. Popup Kholna
 function approveStudent(studentId) {
     document.getElementById('allotStudentId').value = studentId;
-    document.getElementById('allotRoomNo').value = ""; // Purana data clear karna
+    document.getElementById('allotRoomNo').value = ""; 
     document.getElementById('roomAllotModal').style.display = 'flex';
 }
 
@@ -321,7 +319,7 @@ async function confirmRoomAllotment() {
     const roomNo = document.getElementById('allotRoomNo').value;
     
     if (!roomNo || roomNo.trim() === "") {
-        alert("⚠️ Please enter a room number!");
+        showSmartAlert('warning', 'Missing Room', 'Please enter a room number to approve.');
         return;
     }
 
@@ -334,35 +332,17 @@ async function confirmRoomAllotment() {
 
         const data = await res.json();
         if (data.success) {
-            closeRoomModal(); // Pehle room wala popup band karo
-            
-            // Fir Success wala Premium popup dikhao
-            showCustomAlert("Approved!", `Allotted Room: ${roomNo}`);
-            
+            closeRoomModal(); 
+            showSmartAlert('success', 'Approved!', `Student has been approved & allotted Room: ${roomNo}`);
             loadPendingAdmissions(); 
             loadActiveStudents(); 
         } else {
-            alert("❌ Failed to approve: " + data.message);
+            showSmartAlert('error', 'Error', data.message);
         }
     } catch (err) {
-        console.error("Approval Error:", err);
-        alert("Server Error! Check your connection.");
+        showSmartAlert('error', 'Network Error', 'Server is down or unreachable!');
     }
 }
-
-// ==========================================
-// SUCCESS POPUP LOGIC
-// ==========================================
-function showCustomAlert(title, message) {
-    document.getElementById('customAlertTitle').innerHTML = title;
-    document.getElementById('customAlertMessage').innerHTML = message;
-    document.getElementById('customAlertOverlay').style.display = 'flex';
-}
-
-function closeCustomAlert() {
-    document.getElementById('customAlertOverlay').style.display = 'none';
-}
-
 
 async function rejectStudent(studentId) {
     if(confirm("❌ Are you sure you want to reject and delete this registration request?")) {
@@ -374,7 +354,7 @@ async function rejectStudent(studentId) {
             });
             
             if (res.ok) {
-                alert("Registration Rejected!");
+                showSmartAlert('success', 'Rejected', 'Registration request rejected and deleted.');
                 loadPendingAdmissions();
             }
         } catch (err) {
@@ -382,34 +362,42 @@ async function rejectStudent(studentId) {
         }
     }
 }
+
 // ==========================================
-// 🚀 EDIT STUDENT LOGIC
+// 🚀 EDIT STUDENT LOGIC (FULL DETAILS)
 // ==========================================
 
-// Popup Kholna aur purana data bharna
-function openEditModal(id, name, mobile, roomNo) {
+function openEditModal(id, name, email, mobile, roomNo, college, father, mother, address) {
     document.getElementById('editStdId').value = id;
     document.getElementById('editStdName').value = name;
-    
-    // Agar mobile 'undefined' ya '-' hai, toh blank dikhaye
+    document.getElementById('editStdEmail').value = email;
     document.getElementById('editStdMobile').value = (mobile && mobile !== '-' && mobile !== 'undefined') ? mobile : '';
     document.getElementById('editStdRoom').value = roomNo;
+    document.getElementById('editStdCollege').value = (college && college !== '-' && college !== 'undefined') ? college : '';
+    document.getElementById('editStdFather').value = (father && father !== '-' && father !== 'undefined') ? father : '';
+    document.getElementById('editStdMother').value = (mother && mother !== '-' && mother !== 'undefined') ? mother : '';
+    document.getElementById('editStdAddress').value = (address && address !== '-' && address !== 'undefined') ? address : '';
     
     document.getElementById('editModal').style.display = 'flex';
 }
 
-// Popup Band karna
 function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
 }
 
-// Naya data backend par bhejna
 async function submitEditStudent() {
     const id = document.getElementById('editStdId').value;
+    
+    // Nayi aur poori details pack karna
     const updateData = {
         name: document.getElementById('editStdName').value,
+        email: document.getElementById('editStdEmail').value,
         mobile: document.getElementById('editStdMobile').value,
-        roomNo: document.getElementById('editStdRoom').value
+        roomNo: document.getElementById('editStdRoom').value,
+        collegeName: document.getElementById('editStdCollege').value,
+        fatherName: document.getElementById('editStdFather').value,
+        motherName: document.getElementById('editStdMother').value,
+        address: document.getElementById('editStdAddress').value
     };
 
     try {
@@ -421,15 +409,15 @@ async function submitEditStudent() {
         
         const data = await res.json();
         if (data.success) {
-            alert("✅ Student details updated successfully!");
+            showSmartAlert('success', 'Updated!', 'Student details have been successfully updated.');
             closeEditModal();
-            loadActiveStudents(); // Table ko refresh karein
+            loadActiveStudents(); 
         } else {
-            alert("❌ Failed to update: " + data.message);
+            showSmartAlert('error', 'Update Failed', data.message);
         }
     } catch (err) {
-        console.error(err);
-        alert("Server Error while updating!");
+        showSmartAlert('error', 'Server Error', 'Failed to update student details.');
     }
 }
+
 window.onload = loadActiveStudents;
