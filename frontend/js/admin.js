@@ -132,7 +132,6 @@ async function updateFeesStatus(id, newStatus) {
 // ==========================================
 // 2. PERMANENT EXIT & EX-STUDENTS
 // ==========================================
-
 function openExitModal(id, name) {
     selectedStudentId = id;
     document.getElementById('exitStudentName').innerText = name; 
@@ -159,6 +158,38 @@ async function confirmPermanentExit() {
     }
 }
 
+// 🚀 NEW LOGIC: 24-hour time ko AM/PM mein badalne ka function
+function formatTimeAMPM(time24) {
+    if (!time24) return "---";
+    const [hourString, minute] = time24.split(':');
+    let hour = parseInt(hourString, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    
+    hour = hour % 12;
+    hour = hour ? hour : 12; // 0 baje ko 12 banayega
+    const formattedHour = hour.toString().padStart(2, '0');
+    
+    return `${formattedHour}:${minute} ${ampm}`;
+}
+
+async function loadExStudents() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/ex-students-list`);
+        const list = await res.json();
+        const tbody = document.getElementById('exStudentTable');
+        tbody.innerHTML = '';
+        list.forEach(s => {
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${s.name}</b></td>
+                    <td>${s.roomNo}</td>
+                    <td>${s.collegeName}</td>
+                    <td>${formatDate(s.exitDate)}</td>
+                    <td>${formatTimeAMPM(s.exitTime)}</td> 
+                </tr>`;
+        });
+    } catch (err) { console.error("Load Ex-Students Failed", err); }
+}
 async function loadExStudents() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/admin/ex-students-list`);
