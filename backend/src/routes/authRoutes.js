@@ -6,7 +6,7 @@ const authController = require('../controllers/authController');
 const Student = require('../models/Student');
 const Warden = require('../models/Warden');
 const Guard = require('../models/Guard');
-const User = require('../models/User'); // Admin ke liye User model import kiya
+const Admin = require('../models/Admin'); // Admin ke liye Admin model import kiya
 
 // Login Route: http://localhost:5000/api/auth/login
 router.post('/login', authController.login);
@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
         const checkStudent = await Student.findOne({ email });
         const checkWarden = await Warden.findOne({ email });
         const checkGuard = await Guard.findOne({ email });
-        const checkAdmin = await User.findOne({ email }); 
+        const checkAdmin = await Admin.findOne({ email }); 
 
         if (checkStudent || checkWarden || checkGuard || checkAdmin) {
             return res.status(400).json({ success: false, message: "Email already registered in system!" });
@@ -47,31 +47,31 @@ router.post('/register', async (req, res) => {
 // =========================================================
 router.post('/change-password', async (req, res) => {
     try {
-        const { userId, role, currentPassword, newPassword } = req.body;
+        const { AdminId, role, currentPassword, newPassword } = req.body;
 
         // 1. Role ke hisaab se sahi Database Model chunein
         let Model;
-        if (role === 'admin') Model = User;
+        if (role === 'admin') Model = Admin;
         else if (role === 'student') Model = Student;
         else if (role === 'warden') Model = Warden;
         else if (role === 'guard') Model = Guard;
-        else return res.status(400).json({ success: false, message: 'Invalid User Role!' });
+        else return res.status(400).json({ success: false, message: 'Invalid Admin Role!' });
 
-        // 2. User ko database mein dhundein
-        const user = await Model.findById(userId);
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found!' });
+        // 2. Admin ko database mein dhundein
+        const Admin = await Model.findById(AdminId);
+        if (!Admin) {
+            return res.status(404).json({ success: false, message: 'Admin not found!' });
         }
 
         // 3. Current Password ko simply match karein
-        if (user.password !== currentPassword) {
+        if (Admin.password !== currentPassword) {
             return res.status(400).json({ success: false, message: 'Incorrect Current Password!' });
         }
 
         // 4. Naya Password simple text me save karein
-        user.password = newPassword;
+        Admin.password = newPassword;
         
-        await user.save();
+        await Admin.save();
         res.json({ success: true, message: 'Password updated successfully!' });
 
     } catch (error) {
@@ -86,10 +86,10 @@ router.post('/change-password', async (req, res) => {
 router.get('/setup-admin', async (req, res) => {
     try {
         // Check if admin already exists
-        const oldAdmin = await User.findOne({ email: 'admin@gmail.com' });
+        const oldAdmin = await Admin.findOne({ email: 'admin@gmail.com' });
         if (oldAdmin) return res.send("<h1>Admin already exists!</h1><p>Login with: admin@gmail.com / admin123</p>");
 
-        const newAdmin = new User({
+        const newAdmin = new Admin({
             name: "Super Admin",
             email: "admin@gmail.com",
             password: "admin123", // Plain text password
