@@ -6,6 +6,7 @@
     <title>Student Portal | HOSTRAC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/smartAlert.css">
 </head>
 <body>
 <div class="sidebar">
@@ -40,7 +41,7 @@
             <p>View your outpass status and recent activity</p>
         </div>
         
-        <!-- COMPACT STATS GRID (3 in a row like Guard) -->
+        <!-- COMPACT STATS GRID -->
         <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
             <div class="stat-card blue" style="padding: 15px 10px; text-align: center;">
                 <div class="label" style="font-size: 11px;">Total</div>
@@ -59,7 +60,7 @@
         <!-- QR CODE SECTION -->
         <div class="section" style="text-align: center; border: 2px solid var(--primary); background: #f8faff;">
             <h3 style="color: var(--primary); margin-bottom: 5px;"><i class="fas fa-qrcode"></i> Your Gate Pass QR</h3>
-            <p id="qrStatusMsg" style="font-weight: 600; color: var(--warning); margin-bottom: 15px; font-size: 14px;">Application Peding...</p>
+            <p id="qrStatusMsg" style="font-weight: 600; color: var(--warning); margin-bottom: 15px; font-size: 14px;">Application Pending...</p>
             
             <div id="qrcode" style="display: flex; justify-content: center; align-items: center; min-height: 180px; background: white; padding: 15px; border-radius: 16px; width: max-content; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);"></div>
         </div>
@@ -117,21 +118,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="../js/student.js"></script>
 <script src="../js/login.js"></script>
-    <!-- ================= CUSTOM SUCCESS POPUP ================= -->
-<div id="customAlertOverlay" class="custom-alert-overlay" style="display: none;">
-    <div class="custom-alert-box">
-        <!-- Gol Green Check Icon -->
-        <div class="alert-icon-ring">
-            <i class="fas fa-check"></i>
-        </div>
-        
-        <!-- Title & Message -->
-        <h2 id="customAlertTitle">✅ Success</h2>
-        <p id="customAlertMessage">Your request has been processed successfully.</p>
-        
-        <!-- OK Button -->
-        <button class="alert-ok-btn" onclick="closeCustomAlert()">OK</button>
-    </div>
-</div>
+<script src="../js/smartAlert.js"></script>
 </body>
 </html>
