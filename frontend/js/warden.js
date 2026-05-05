@@ -190,8 +190,10 @@ function openProfile(i) {
 function closeModal() { document.getElementById('profileModal').style.display = 'none'; }
 
 function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+    showSmartConfirm("Logout?", "Are you sure you want to log out?", function() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    });
 }
 
 setInterval(() => { loadOutpass(); loadRecords(); }, 10000);
