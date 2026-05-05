@@ -1,7 +1,3 @@
-/**
- * UNIVERSAL SMART ALERT LOGIC
- * Isko poore project me kahin bhi call kiya ja sakta hai
- */
 
 function showSmartAlert(type, title, message) {
     // Agar pehle se koi alert khula hai, toh usko hata do
@@ -45,6 +41,40 @@ function showSmartAlert(type, title, message) {
 
     // Code ko page (body) ke aakhiri me chipka dena
     document.body.insertAdjacentHTML('beforeend', alertHTML);
+}
+
+// ==========================================
+// SMART CONFIRM (For Logout & Delete Actions)
+// ==========================================
+function showSmartConfirm(title, message, onConfirmCallback) {
+    const existingAlert = document.getElementById('smartAlertOverlay');
+    if (existingAlert) existingAlert.remove();
+
+    const alertHTML = `
+        <div id="smartAlertOverlay" class="smart-alert-overlay">
+            <div class="smart-alert-box" style="transform: scale(1); opacity: 1;">
+                <div class="smart-icon-ring" style="border-color: #fecaca; color: #ef4444; background: #fef2f2;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <h2>${title}</h2>
+                <p>${message}</p>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="smart-ok-btn" style="background: #f1f5f9; color: #475569; box-shadow: none;" onclick="closeSmartAlert()">Cancel</button>
+                    <button class="smart-ok-btn" style="background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);" id="smartConfirmBtn">Yes, Logout</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHTML);
+    
+    // Jab user "Yes, Logout" par click kare
+    document.getElementById('smartConfirmBtn').addEventListener('click', function() {
+        closeSmartAlert(); // Pehle popup smoothly band karo
+        setTimeout(() => {
+            onConfirmCallback(); // Phir actual action (logout) chalao
+        }, 300);
+    });
 }
 
 function closeSmartAlert() {
