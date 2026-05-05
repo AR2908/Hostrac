@@ -1,7 +1,3 @@
-/**
- * Hostrac - Student Dashboard (Final: Cache Bypass, Multi-Outpass Block & Date Fix)
- */
-
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 const bell = new Audio(window.location.origin + '/bell.mp3'); 
@@ -36,7 +32,33 @@ function showPanel(id, el) {
     if(id === 'history' || id === 'dashboard') loadMyHistory();
 }
 
-// CASE 1: Warden Approved
+// 🚀 FIX: Yahan se missing function loadMyHistory() wapas add kiya gaya hai
+async function loadMyHistory() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/student/history/${user._id}?t=${new Date().getTime()}`, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        });
+        
+        if (!res.ok) throw new Error("Connection Error");
+        
+        let history = await res.json();
+        
+        const qrContainer = document.getElementById('qrcode');
+        const qrMsg = document.getElementById('qrStatusMsg');
+        
+        if (history.length > 0) {
+            history.sort((a, b) => a._id.localeCompare(b._id));
+            const latestRequest = history[history.length - 1]; 
+            
+            const safeStatus = latestRequest.status ? latestRequest.status.trim().toLowerCase() : "";
+            
+            if (qrContainer) {
+                qrContainer.innerHTML = ""; 
+                
+                // CASE 1: Warden Approved
                 if (safeStatus === 'approved' && !latestRequest.entryTime) {
                     if(qrMsg) {
                         qrMsg.innerHTML = '✅ Approved! Show this <span style="color:red; font-weight:900;">LIVE QR</span> to the Guard';
@@ -48,13 +70,12 @@ function showPanel(id, el) {
                         
                         // 🚀 NEW LOGIC: Live QR Generator Function
                         const generateLiveQR = () => {
-                            const currentTime = new Date().getTime(); // Current Time
+                            const currentTime = new Date().getTime(); 
                             
-                            // QR Data mein timestamp jod diya, jisse ye har baar naya banega
                             const qrData = JSON.stringify({ 
                                 studentId: user._id, 
                                 requestId: latestRequest._id,
-                                timestamp: currentTime // Security Feature!
+                                timestamp: currentTime 
                             });
                             
                             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff&_t=${currentTime}`;
@@ -67,19 +88,16 @@ function showPanel(id, el) {
                             `;
                         };
 
-                        // Pehli baar turant QR banao
                         generateLiveQR();
 
-                        // Purana koi interval chal raha ho toh use band karo
                         if (window.liveQrInterval) clearInterval(window.liveQrInterval);
 
-                        // Har 10 second (10000ms) mein QR code change karo
                         window.liveQrInterval = setInterval(generateLiveQR, 10000);
                     }
                 } 
                 // CASE 2: Pending
                 else if (safeStatus === 'pending') {
-                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); // QR refresh roko
+                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); 
                     qrContainer.innerHTML = "<p style='color: #636e72; padding: 20px; font-size: 24px; margin: 0;'>⏳</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "Wait for Warden's Approval...";
@@ -88,7 +106,7 @@ function showPanel(id, el) {
                 } 
                 // CASE 3: Rejected
                 else if (safeStatus === 'rejected') {
-                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); // QR refresh roko
+                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); 
                     qrContainer.innerHTML = "<p style='color: #d63031; font-size: 40px; margin:0;'>❌</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "Outpass Rejected by Warden";
@@ -97,18 +115,17 @@ function showPanel(id, el) {
                 } 
                 // CASE 4: Completed
                 else {
-                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); // QR refresh roko
+                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); 
                     qrContainer.innerHTML = "<p style='color: #27ae60; font-size: 40px; margin:0;'>🏠</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "You are currently in the Hostel";
                         qrMsg.style.color = "#2d3436";
                     }
                 }
+            }
 
             if (lastRequestStatus !== "" && safeStatus !== lastRequestStatus) {
                 bell.play().catch(e => {});
-                // Optional: Yahan bhi custom alert laga sakte hain baad mein
-                
             }
             lastRequestStatus = safeStatus;
         } else {
@@ -205,7 +222,8 @@ if(applyForm) {
                                latestRecordText.includes('rejected');
 
             if (isActive && !isFinished) {
-                alert("⚠️ WARNING: Your outpass is already active or pending! You cannot apply again until you return.");
+                // 🚀 FIX: Smart Alert added for Blocker
+                showSmartAlert('warning', 'Wait! Blocker.', 'Your outpass is already active or pending! You cannot apply again until you return.');
                 return; 
             }
         }
@@ -229,25 +247,28 @@ if(applyForm) {
             const data = await response.json();
 
             if (data.success) {
-                // 🚀 FIX: Purane alert ko hata kar naya showCustomAlert call kiya gaya hai!
-                showCustomAlert("Success", "Outpass Applied Successfully! It is waiting for Warden's approval.");
+                // 🚀 FIX: Smart Alert added for Success
+                showSmartAlert('success', 'Success!', "Outpass Applied Successfully! It is waiting for Warden's approval.");
                 
                 applyForm.reset();
                 showPanel('dashboard', document.querySelector('nav a:first-child'));
                 loadMyHistory(); 
             } else {
-                alert("❌ Failed: " + data.message); // Isko baad me design karenge agar zaroorat padi
+                showSmartAlert('error', 'Failed!', data.message);
             }
         } catch (err) {
             console.error("Apply Error:", err);
-            alert("Server Error! Backend check karein.");
+            showSmartAlert('error', 'Server Error!', 'Backend check karein.');
         }
     });
 }
 
+// 🚀 FIX: Logout Logic added with Confirm
 function logout() {
-    localStorage.clear();
-    window.location.href = 'login.html';
+    if (confirm("Do you want to logout?")) {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
 }
 
 setInterval(loadMyHistory, 10000);
@@ -275,15 +296,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-// Popup Kholne ka function
-function showCustomAlert(title, message) {
-    document.getElementById('customAlertTitle').innerHTML = title;
-    document.getElementById('customAlertMessage').innerHTML = message;
-    document.getElementById('customAlertOverlay').style.display = 'flex';
-}
-
-// Popup Band karne ka function
-function closeCustomAlert() {
-    document.getElementById('customAlertOverlay').style.display = 'none';
-}
