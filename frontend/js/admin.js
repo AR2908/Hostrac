@@ -1,5 +1,6 @@
 const user = JSON.parse(localStorage.getItem('user'));
 let selectedStudentId = null;
+
 const API_BASE_URL = 'https://hostrac.onrender.com';
 
 if (!user || user.role !== 'admin') {
@@ -71,9 +72,6 @@ async function loadActiveStudents() {
 
         students.forEach(s => {
             const isPaid = s.feesStatus === 'Paid';
-            const nextStatus = isPaid ? 'Unpaid' : 'Paid';
-
-            // Live Status Style (In/Out)
             const isOut = s.currentStatus === 'Out';
             const statusLabel = isOut ? 'OUT 🚩' : 'IN ✅';
             const statusStyle = isOut 
@@ -81,16 +79,9 @@ async function loadActiveStudents() {
                 : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
             
             const feesBadgeStyle = isPaid 
-                ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" // Paid = Green
-                : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;"; // Unpaid = Red
+                ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" 
+                : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;";
 
-            const feesButtonStyle = isPaid 
-                ? "background: #e74c3c; color: white; padding: 8px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;" // Paid hai, toh "Mark Unpaid" Button Red hoga
-                : "background: #27ae60; color: white; padding: 8px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer;"; // Unpaid hai, toh "Mark Paid" Button Green hoga
-            
-            const feesIcon = isPaid ? "fas fa-times-circle" : "fas fa-check-circle";
-
-            // Text ko safe banana taaki single quote (') click karne par code na tode
             const safeName = (s.name || '').replace(/'/g, "\\'");
             const safeEmail = (s.email || '').replace(/'/g, "\\'");
             const safeMobile = (s.mobile || '').replace(/'/g, "\\'");
@@ -100,47 +91,23 @@ async function loadActiveStudents() {
             const safeMother = (s.motherName || '').replace(/'/g, "\\'");
             const safeAddress = (s.address || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
 
+            // 🚀 Table ab ekdum clean hai! Sirf 1 "Manage" button!
             tbody.innerHTML += `
                 <tr>
                     <td><b>${s.name}</b><br><small style="color:#636e72;">ID: ${s.email}</small></td>
                     <td>${s.roomNo}</td>
-                    <td>
-                        <span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; ${statusStyle}">
-                            ${statusLabel}
-                        </span>
-                    </td>
-                    
-                    <!-- Yahan Updated Fees Badge lagaya hai -->
-                    <td><span style="${feesBadgeStyle}">${s.feesStatus}</span></td>
-                   
-                    <td style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                        <button class="btn btn-warning" style="padding: 8px 12px; font-size: 12px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer;" 
-                            onclick="openEditModal('${s._id}', '${safeName}', '${safeEmail}', '${safeMobile}', '${safeRoom}', '${safeCollege}', '${safeFather}', '${safeMother}', '${safeAddress}')">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        
-                        <!-- Yahan Updated Fees Action Button lagaya hai -->
-                        <button class="btn" style="${feesButtonStyle}" onclick="updateFeesStatus('${s._id}', '${nextStatus}')">
-                            <i class="${feesIcon}"></i> Mark ${nextStatus}
-                        </button>
-                        
-                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px; background: #dc2626; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="openExitModal('${s._id}', '${safeName}')">
-                            <i class="fas fa-sign-out-alt"></i> Mark Ex-Student
+                    <td><span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; ${statusStyle}">${statusLabel}</span></td>
+                    <td><span style="${feesBadgeStyle}">${s.feesStatus || 'Unpaid'}</span></td>
+                    <td style="text-align: center;">
+                        <button class="btn btn-primary" style="padding: 8px 20px; font-size: 13px; border-radius: 6px; cursor: pointer; background: #6c63ff; color: white; border: none;" 
+                            onclick="openEditModal('${s._id}', '${safeName}', '${safeEmail}', '${safeMobile}', '${safeRoom}', '${safeCollege}', '${safeFather}', '${safeMother}', '${safeAddress}', '${s.feesStatus}')">
+                            <i class="fas fa-user-cog"></i> Manage
                         </button>
                     </td>
                 </tr>
             `;
         });
     } catch (err) { console.error("Load Students Failed", err); }
-}
-
-async function updateFeesStatus(id, newStatus) {
-    const res = await fetch(`${API_BASE_URL}/api/admin/update-fees`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: id, feesStatus: newStatus })
-    });
-    if ((await res.json()).success) loadActiveStudents();
 }
 
 // ==========================================
@@ -208,7 +175,6 @@ async function loadExStudents() {
 // ==========================================
 // 3. STAFF MANAGEMENT
 // ==========================================
-
 document.getElementById('staffForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const payload = {
@@ -282,7 +248,6 @@ async function deleteStaffMember(role, id) {
 // ==========================================
 // 4. NEW ADMISSION MANAGEMENT
 // ==========================================
-
 async function loadPendingAdmissions() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/admin/pending-students`);
@@ -391,10 +356,9 @@ async function rejectStudent(studentId) {
 }
 
 // ==========================================
-// 🚀 EDIT STUDENT LOGIC (FULL DETAILS)
+// 🚀 EDIT STUDENT LOGIC (FULL DETAILS WITH FEES & EX-STUDENT)
 // ==========================================
-
-function openEditModal(id, name, email, mobile, roomNo, college, father, mother, address) {
+function openEditModal(id, name, email, mobile, roomNo, college, father, mother, address, feesStatus) {
     document.getElementById('editStdId').value = id;
     document.getElementById('editStdName').value = name;
     document.getElementById('editStdEmail').value = email;
@@ -404,6 +368,15 @@ function openEditModal(id, name, email, mobile, roomNo, college, father, mother,
     document.getElementById('editStdFather').value = (father && father !== '-' && father !== 'undefined') ? father : '';
     document.getElementById('editStdMother').value = (mother && mother !== '-' && mother !== 'undefined') ? mother : '';
     document.getElementById('editStdAddress').value = (address && address !== '-' && address !== 'undefined') ? address : '';
+    
+    // Set current Fees Status in Dropdown
+    document.getElementById('editStdFees').value = (feesStatus === 'Paid') ? 'Paid' : 'Unpaid';
+    
+    // Setup Ex-Student Button Click
+    document.getElementById('btnEditExStudent').onclick = function() {
+        closeEditModal();
+        openExitModal(id, name);
+    };
     
     document.getElementById('editModal').style.display = 'flex';
 }
@@ -415,13 +388,13 @@ function closeEditModal() {
 async function submitEditStudent() {
     const id = document.getElementById('editStdId').value;
     
-    // Nayi aur poori details pack karna
     const updateData = {
         name: document.getElementById('editStdName').value,
         email: document.getElementById('editStdEmail').value,
         mobile: document.getElementById('editStdMobile').value,
         roomNo: document.getElementById('editStdRoom').value,
         collegeName: document.getElementById('editStdCollege').value,
+        feesStatus: document.getElementById('editStdFees').value, // Bheja Fees Status
         fatherName: document.getElementById('editStdFather').value,
         motherName: document.getElementById('editStdMother').value,
         address: document.getElementById('editStdAddress').value
@@ -436,7 +409,7 @@ async function submitEditStudent() {
         
         const data = await res.json();
         if (data.success) {
-            showSmartAlert('success', 'Updated!', 'Student details have been successfully updated.');
+            showSmartAlert('success', 'Updated!', 'Student details & fees have been successfully updated.');
             closeEditModal();
             loadActiveStudents(); 
         } else {
