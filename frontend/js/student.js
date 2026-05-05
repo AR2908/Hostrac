@@ -83,7 +83,7 @@ async function loadMyHistory() {
                             qrContainer.innerHTML = `
                                 <img src="${qrUrl}" alt="Gate Pass QR" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,242,254,0.3); width: 160px; height: 160px; display: block; margin: 0 auto;">
                                 <p style="font-size: 11px; color: #e74c3c; margin-top: 10px; font-weight: bold; animation: pulse 1.5s infinite;">
-                                    <i class="fas fa-sync-alt fa-spin"></i> Auto-updating every 10s...
+                                    <i class="fas fa-sync-alt fa-spin"></i>
                                 </p>
                             `;
                         };
