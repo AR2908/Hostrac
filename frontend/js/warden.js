@@ -1,4 +1,3 @@
-
 const API_BASE_URL = 'https://hostrac.onrender.com';
 const user = JSON.parse(localStorage.getItem('user'));
 let studentsCache = [];
@@ -20,6 +19,8 @@ function showPanel(id, el) {
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     if(el) el.classList.add('active');
     
+    // 🚀 NEW: Load pending admissions when tab is clicked
+    if (id === 'admissions') loadPendingAdmissions();
     if (id === 'outpass') loadOutpass();
     if (id === 'records') loadRecords();
 }
@@ -37,7 +38,6 @@ async function loadRecords() {
         if(!tbody) return;
         tbody.innerHTML = '';
 
-        // Stats
         const outStudentsCount = studentsCache.filter(s => s.currentStatus === 'Out').length;
         if(document.getElementById('count-total')) document.getElementById('count-total').innerText = studentsCache.length;
         if(document.getElementById('count-out')) document.getElementById('count-out').innerText = outStudentsCount;
@@ -70,7 +70,7 @@ async function loadRecords() {
 }
 
 /**
- * NEW: Fetch History for Single Student
+ * Fetch History for Single Student
  */
 async function viewStudentHistory(studentId, studentName) {
     try {
@@ -103,7 +103,7 @@ async function viewStudentHistory(studentId, studentName) {
             });
         }
         document.getElementById('historyModal').style.display = 'block';
-    } catch (err) { alert("History fetch failed"); }
+    } catch (err) { showSmartAlert('error', 'Error', 'History fetch failed'); }
 }
 
 /**
@@ -127,7 +127,6 @@ async function loadOutpass() {
         [...data].reverse().forEach(req => {
             let displayName = req.studentId ? req.studentId.name : `EX- ${req.studentName || ''}`;
             let displayRoom = req.studentId ? req.studentId.roomNo : (req.roomNo || 'N/A');
-            nameStyle = "color: #d63031; font-weight: bold;"; 
             
             let actionHtml = (req.status === 'Pending') ? `
                     <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
@@ -138,7 +137,6 @@ async function loadOutpass() {
         <i class="fas fa-times-circle"></i> Reject
     </button>
 </div>
-
                 ` : `<span class="${req.status === 'Approved' ? 'fees-paid' : 'fees-unpaid'}">${req.status}</span>`;
 
             tbody.innerHTML += `
@@ -164,13 +162,129 @@ async function updateReq(id, status) {
             body: JSON.stringify({ requestId: id, status })
         });
         if(res.ok) {
-            // Success alert Warden ko dikhane ke liye
-            console.log(`Outpass ${status} successfully`);
+            // 🚀 FIX: Warden ko bhi Smart Alert dikhega ab!
+            showSmartAlert('success', 'Updated!', `Outpass request ${status} successfully.`);
             loadOutpass();
             loadRecords(); 
         }
     } catch (err) { console.error("Update failed:", err); }
 }
+
+// ==========================================
+// 🚀 NEW: ADMISSION MANAGEMENT FOR WARDEN
+// ==========================================
+
+async function loadPendingAdmissions() {
+    try {
+        // Backend roles me admin ki APIs ko warden bhi usually hit kar sakta hai is flow me.
+        const res = await fetch(`${API_BASE_URL}/api/admin/pending-students`);
+        const students = await res.json();
+        
+        const tbody = document.getElementById('admissionTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (students.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: gray; padding: 20px;">No pending admissions right now.</td></tr>`;
+            return;
+        }
+
+        students.forEach(student => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>
+                        <b>${student.name || 'No Name'}</b><br>
+                        <small style="color: #64748b;">${student.email || 'No Email'}</small><br>
+                        <small style="color: #6c63ff; font-weight: bold;">${student.collegeName || 'N/A'}</small>
+                    </td>
+                    <td>
+                        <small><b>FATHER:</b> ${student.fatherName || '---'}</small><br>
+                        <small><b>MOTHER:</b> ${student.motherName || '---'}</small>
+                    </td>
+                    <td><small style="color: #64748b;">${student.address || '---'}</small></td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                            <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px; background: #10b981;" onclick="approveStudent('${student._id}')">
+                                <i class="fas fa-check-circle"></i> Approve
+                            </button>
+                            <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="rejectStudent('${student._id}')">
+                                <i class="fas fa-times-circle"></i> Reject
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error("Error loading admissions:", err);
+    }
+}
+
+// Popup Kholna
+function approveStudent(studentId) {
+    document.getElementById('allotStudentId').value = studentId;
+    document.getElementById('allotRoomNo').value = ""; 
+    document.getElementById('roomAllotModal').style.display = 'flex';
+}
+
+// Popup Band karna
+function closeRoomModal() {
+    document.getElementById('roomAllotModal').style.display = 'none';
+}
+
+// API Call aur Data Save Karna
+async function confirmRoomAllotment() {
+    const studentId = document.getElementById('allotStudentId').value;
+    const roomNo = document.getElementById('allotRoomNo').value;
+    
+    if (!roomNo || roomNo.trim() === "") {
+        showSmartAlert('warning', 'Missing Room', 'Please enter a room number to approve.');
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/approve-student`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ studentId: studentId, roomNo: roomNo, status: 'Active' })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            closeRoomModal(); 
+            showSmartAlert('success', 'Approved!', `Student has been approved & allotted Room: ${roomNo}`);
+            loadPendingAdmissions(); 
+            loadRecords(); // Dashboard records update karna
+        } else {
+            showSmartAlert('error', 'Error', data.message);
+        }
+    } catch (err) {
+        showSmartAlert('error', 'Network Error', 'Server is down or unreachable!');
+    }
+}
+
+async function rejectStudent(studentId) {
+    if(confirm("❌ Are you sure you want to reject and delete this registration request?")) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/admin/reject-student`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId: studentId })
+            });
+            
+            if (res.ok) {
+                showSmartAlert('success', 'Rejected', 'Registration request rejected and deleted.');
+                loadPendingAdmissions();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+}
+
+// ==========================================
+// UTILITY FUNCTIONS
+// ==========================================
 
 function openProfile(i) {
     const s = studentsCache[i];
@@ -196,5 +310,5 @@ function logout() {
     });
 }
 
-setInterval(() => { loadOutpass(); loadRecords(); }, 10000);
-window.onload = () => { loadOutpass(); loadRecords(); };
+setInterval(() => { loadOutpass(); loadRecords(); loadPendingAdmissions(); }, 10000);
+window.onload = () => { loadOutpass(); loadRecords(); loadPendingAdmissions(); };
