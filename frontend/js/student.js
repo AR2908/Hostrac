@@ -36,48 +36,50 @@ function showPanel(id, el) {
     if(id === 'history' || id === 'dashboard') loadMyHistory();
 }
 
-async function loadMyHistory() {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/student/history/${user._id}?t=${new Date().getTime()}`, {
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
-            }
-        });
-        
-        if (!res.ok) throw new Error("Connection Error");
-        
-        let history = await res.json();
-        
-        const qrContainer = document.getElementById('qrcode');
-        const qrMsg = document.getElementById('qrStatusMsg');
-        
-        if (history.length > 0) {
-            history.sort((a, b) => a._id.localeCompare(b._id));
-            const latestRequest = history[history.length - 1]; 
-            
-            const safeStatus = latestRequest.status ? latestRequest.status.trim().toLowerCase() : "";
-            
-            if (qrContainer) {
-                qrContainer.innerHTML = ""; 
-                
-                // CASE 1: Warden Approved
+// CASE 1: Warden Approved
                 if (safeStatus === 'approved' && !latestRequest.entryTime) {
                     if(qrMsg) {
-                        qrMsg.innerText = "✅ Approved! Show this QR to the Guard";
+                        qrMsg.innerHTML = '✅ Approved! Show this <span style="color:red; font-weight:900;">LIVE QR</span> to the Guard';
                         qrMsg.style.color = "#27ae60";
                     }
                     if (!user._id || !latestRequest._id) {
                         qrContainer.innerHTML = "<p style='color:red;'>Data Error.</p>";
                     } else {
-                        const qrData = JSON.stringify({ studentId: user._id, requestId: latestRequest._id });
-                        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff&_t=${new Date().getTime()}`;
                         
-                        qrContainer.innerHTML = `<img src="${qrUrl}" alt="Gate Pass QR" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); width: 160px; height: 160px; display: block; margin: 0 auto;">`;
+                        // 🚀 NEW LOGIC: Live QR Generator Function
+                        const generateLiveQR = () => {
+                            const currentTime = new Date().getTime(); // Current Time
+                            
+                            // QR Data mein timestamp jod diya, jisse ye har baar naya banega
+                            const qrData = JSON.stringify({ 
+                                studentId: user._id, 
+                                requestId: latestRequest._id,
+                                timestamp: currentTime // Security Feature!
+                            });
+                            
+                            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}&color=000000&bgcolor=ffffff&_t=${currentTime}`;
+                            
+                            qrContainer.innerHTML = `
+                                <img src="${qrUrl}" alt="Gate Pass QR" style="border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,242,254,0.3); width: 160px; height: 160px; display: block; margin: 0 auto;">
+                                <p style="font-size: 11px; color: #e74c3c; margin-top: 10px; font-weight: bold; animation: pulse 1.5s infinite;">
+                                    <i class="fas fa-sync-alt fa-spin"></i> Auto-updating every 10s...
+                                </p>
+                            `;
+                        };
+
+                        // Pehli baar turant QR banao
+                        generateLiveQR();
+
+                        // Purana koi interval chal raha ho toh use band karo
+                        if (window.liveQrInterval) clearInterval(window.liveQrInterval);
+
+                        // Har 10 second (10000ms) mein QR code change karo
+                        window.liveQrInterval = setInterval(generateLiveQR, 10000);
                     }
                 } 
                 // CASE 2: Pending
                 else if (safeStatus === 'pending') {
+                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); // QR refresh roko
                     qrContainer.innerHTML = "<p style='color: #636e72; padding: 20px; font-size: 24px; margin: 0;'>⏳</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "Wait for Warden's Approval...";
@@ -86,6 +88,7 @@ async function loadMyHistory() {
                 } 
                 // CASE 3: Rejected
                 else if (safeStatus === 'rejected') {
+                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); // QR refresh roko
                     qrContainer.innerHTML = "<p style='color: #d63031; font-size: 40px; margin:0;'>❌</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "Outpass Rejected by Warden";
@@ -94,13 +97,13 @@ async function loadMyHistory() {
                 } 
                 // CASE 4: Completed
                 else {
+                    if (window.liveQrInterval) clearInterval(window.liveQrInterval); // QR refresh roko
                     qrContainer.innerHTML = "<p style='color: #27ae60; font-size: 40px; margin:0;'>🏠</p>";
                     if(qrMsg) {
                         qrMsg.innerText = "You are currently in the Hostel";
                         qrMsg.style.color = "#2d3436";
                     }
                 }
-            }
 
             if (lastRequestStatus !== "" && safeStatus !== lastRequestStatus) {
                 bell.play().catch(e => {});
