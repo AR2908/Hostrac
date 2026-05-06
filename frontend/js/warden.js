@@ -19,15 +19,14 @@ function showPanel(id, el) {
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     if(el) el.classList.add('active');
     
-    // 🚀 NEW: Load pending admissions when tab is clicked
     if (id === 'admissions') loadPendingAdmissions();
     if (id === 'outpass') loadOutpass();
     if (id === 'records') loadRecords();
 }
 
-/**
- * Load Records & Update Clickable Names (FIXED: Pending hidden + Fees Color added)
- */
+// ==========================================
+// 🚀 RECORDS & SEARCH LOGIC
+// ==========================================
 async function loadRecords() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/warden/all-students`);
@@ -35,53 +34,139 @@ async function loadRecords() {
         
         const allFetchedStudents = await res.json();
 
-        // Sirf un students ko filter karke rakhein jo 'Pending' nahi hain
-        studentsCache = allFetchedStudents.filter(s => s.status !== 'Pending');
+        // Filter Pending & Reverse to show latest first
+        studentsCache = allFetchedStudents.filter(s => s.status !== 'Pending').reverse();
 
-        const tbody = document.getElementById('recordsBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-
-        // Stats ab sirf Approved students ko count karega
+        // Update Stats
         const outStudentsCount = studentsCache.filter(s => s.currentStatus === 'Out').length;
         if(document.getElementById('count-total')) document.getElementById('count-total').innerText = studentsCache.length;
         if(document.getElementById('count-out')) document.getElementById('count-out').innerText = outStudentsCount;
         if(document.getElementById('count-in')) document.getElementById('count-in').innerText = studentsCache.length - outStudentsCount;
 
-        studentsCache.forEach((s, i) => {
-            const isOut = s.currentStatus === 'Out';
-            const statusStyle = isOut 
-                ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
-                : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
+        // Render Table
+        renderStudentTable(studentsCache);
+    } catch (err) { console.error(err); }
+}
 
-            // 🚀 FIX: Fees Badge Style Admin page se yahan bhi add kar diya
-            const isFeesPaid = s.feesStatus === 'Paid';
-            const feesBadgeStyle = isFeesPaid 
-                ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" 
-                : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;";
+function searchStudents() {
+    const searchTerm = document.getElementById('studentSearchInput').value.toLowerCase();
+    
+    const filteredList = studentsCache.filter(s => 
+        s.name.toLowerCase().includes(searchTerm) || 
+        (s.roomNo && s.roomNo.toString().toLowerCase().includes(searchTerm))
+    );
+    
+    renderStudentTable(filteredList);
+}
+
+function renderStudentTable(list) {
+    const tbody = document.getElementById('recordsBody');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+
+    if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: gray;">No students found matching your search.</td></tr>';
+        return;
+    }
+
+    list.forEach((s) => {
+        const isOut = s.currentStatus === 'Out';
+        const statusStyle = isOut 
+            ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
+            : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
+
+        const isFeesPaid = s.feesStatus === 'Paid';
+        const feesBadgeStyle = isFeesPaid 
+            ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" 
+            : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;";
+
+        tbody.innerHTML += `
+            <tr>
+                <td>
+                    <b class="clickable-name" onclick="viewStudentHistory('${s._id}', '${s.name}')">
+                        ${s.name}
+                    </b>
+                </td>
+                <td>${s.roomNo || 'N/A'}</td>
+                <td>
+                    <span style="padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block; ${statusStyle}">
+                        ${isOut ? 'OUT 🚩' : 'IN ✅'}
+                    </span>
+                </td>
+                <td><span style="${feesBadgeStyle}">${s.feesStatus || 'Unpaid'}</span></td>
+                <td><button class="btn btn-primary" style="padding:5px 12px; font-size:11px;" onclick="openProfileFromList('${s._id}')">View Profile</button></td>
+            </tr>`;
+    });
+}
+
+function openProfileFromList(studentId) {
+    const index = studentsCache.findIndex(s => s._id === studentId);
+    if(index !== -1) openProfile(index);
+}
+
+// ==========================================
+// 🚀 OUTPASS LOGIC (LATEST ON TOP)
+// ==========================================
+async function loadOutpass() {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/warden/leave-requests`);
+        const data = await res.json();
+        
+        const pendingRequests = data.filter(r => r.status === 'Pending');
+        if (pendingRequests.length > lastRequestCount && lastRequestCount !== 0) {
+            bell.play().catch(e => {});
+        }
+        lastRequestCount = pendingRequests.length;
+
+        const tbody = document.getElementById('outpassBody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+
+        [...data].reverse().forEach(req => {
+            let displayName = req.studentId ? req.studentId.name : `EX- ${req.studentName || ''}`;
+            let displayRoom = req.studentId ? req.studentId.roomNo : (req.roomNo || 'N/A');
+            
+            let actionHtml = (req.status === 'Pending') ? `
+                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                        <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px; background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="updateReq('${req._id}', 'Approved')">
+                            <i class="fas fa-check-circle"></i> Approve
+                        </button>
+                        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="updateReq('${req._id}', 'Rejected')">
+                            <i class="fas fa-times-circle"></i> Reject
+                        </button>
+                    </div>
+                ` : `<span class="${req.status === 'Approved' ? 'fees-paid' : 'fees-unpaid'}">${req.status}</span>`;
 
             tbody.innerHTML += `
                 <tr>
+                    <td><b>${displayName}</b></td>
+                    <td>${displayRoom}</td>
+                    <td class="reason-text">${req.reason}</td>
                     <td>
-                        <b class="clickable-name" onclick="viewStudentHistory('${s._id}', '${s.name}')">
-                            ${s.name}
-                        </b>
+                        <small>Leave: ${new Date(req.leaveDate).toLocaleDateString('en-GB')}</small><br>
+                        <small>Return: ${new Date(req.returnDate).toLocaleDateString('en-GB')}</small>
                     </td>
-                    <td>${s.roomNo || 'N/A'}</td>
-                    <td>
-                        <span style="padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block; ${statusStyle}">
-                            ${isOut ? 'OUT 🚩' : 'IN ✅'}
-                        </span>
-                    </td>
-                    <td><span style="${feesBadgeStyle}">${s.feesStatus || 'Unpaid'}</span></td>
-                    <td><button class="btn btn-primary" style="padding:5px 12px; font-size:11px;" onclick="openProfile(${i})">View Profile</button></td>
+                    <td style="text-align:center;">${actionHtml}</td>
                 </tr>`;
         });
     } catch (err) { console.error(err); }
 }
-/**
- * Fetch History for Single Student
- */
+
+async function updateReq(id, status) {
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/warden/update-leave`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ requestId: id, status })
+        });
+        if(res.ok) {
+            showSmartAlert('success', 'Updated!', `Outpass request ${status} successfully.`);
+            loadOutpass();
+            loadRecords(); 
+        }
+    } catch (err) { console.error("Update failed:", err); }
+}
+
 async function viewStudentHistory(studentId, studentName) {
     try {
         const res = await fetch(`${API_BASE_URL}/api/student/history/${studentId}`);
@@ -116,77 +201,11 @@ async function viewStudentHistory(studentId, studentName) {
     } catch (err) { showSmartAlert('error', 'Error', 'History fetch failed'); }
 }
 
-/**
- * Load Outpass Requests
- */
-async function loadOutpass() {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/warden/leave-requests`);
-        const data = await res.json();
-        
-        const pendingRequests = data.filter(r => r.status === 'Pending');
-        if (pendingRequests.length > lastRequestCount && lastRequestCount !== 0) {
-            bell.play().catch(e => {});
-        }
-        lastRequestCount = pendingRequests.length;
-
-        const tbody = document.getElementById('outpassBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-
-        [...data].reverse().forEach(req => {
-            let displayName = req.studentId ? req.studentId.name : `EX- ${req.studentName || ''}`;
-            let displayRoom = req.studentId ? req.studentId.roomNo : (req.roomNo || 'N/A');
-            
-            let actionHtml = (req.status === 'Pending') ? `
-                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-    <button class="btn btn-primary" style="padding: 8px 12px; font-size: 12px; background: #10b981; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="updateReq('${req._id}', 'Approved')">
-        <i class="fas fa-check-circle"></i> Approve
-    </button>
-    <button class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="updateReq('${req._id}', 'Rejected')">
-        <i class="fas fa-times-circle"></i> Reject
-    </button>
-</div>
-                ` : `<span class="${req.status === 'Approved' ? 'fees-paid' : 'fees-unpaid'}">${req.status}</span>`;
-
-            tbody.innerHTML += `
-                <tr>
-                    <td><b>${displayName}</b></td>
-                    <td>${displayRoom}</td>
-                    <td class="reason-text">${req.reason}</td>
-                    <td>
-                        <small>Leave: ${new Date(req.leaveDate).toLocaleDateString('en-GB')}</small><br>
-                        <small>Return: ${new Date(req.returnDate).toLocaleDateString('en-GB')}</small>
-                    </td>
-                    <td style="text-align:center;">${actionHtml}</td>
-                </tr>`;
-        });
-    } catch (err) { console.error(err); }
-}
-
-async function updateReq(id, status) {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/warden/update-leave`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ requestId: id, status })
-        });
-        if(res.ok) {
-            // 🚀 FIX: Warden ko bhi Smart Alert dikhega ab!
-            showSmartAlert('success', 'Updated!', `Outpass request ${status} successfully.`);
-            loadOutpass();
-            loadRecords(); 
-        }
-    } catch (err) { console.error("Update failed:", err); }
-}
-
 // ==========================================
-// 🚀 NEW: ADMISSION MANAGEMENT FOR WARDEN
+// 🚀 ADMISSION MANAGEMENT
 // ==========================================
-
 async function loadPendingAdmissions() {
     try {
-        // Backend roles me admin ki APIs ko warden bhi usually hit kar sakta hai is flow me.
         const res = await fetch(`${API_BASE_URL}/api/admin/pending-students`);
         const students = await res.json();
         
@@ -226,24 +245,19 @@ async function loadPendingAdmissions() {
                 </tr>
             `;
         });
-    } catch (err) {
-        console.error("Error loading admissions:", err);
-    }
+    } catch (err) { console.error("Error loading admissions:", err); }
 }
 
-// Popup Kholna
 function approveStudent(studentId) {
     document.getElementById('allotStudentId').value = studentId;
     document.getElementById('allotRoomNo').value = ""; 
     document.getElementById('roomAllotModal').style.display = 'flex';
 }
 
-// Popup Band karna
 function closeRoomModal() {
     document.getElementById('roomAllotModal').style.display = 'none';
 }
 
-// API Call aur Data Save Karna
 async function confirmRoomAllotment() {
     const studentId = document.getElementById('allotStudentId').value;
     const roomNo = document.getElementById('allotRoomNo').value;
@@ -265,7 +279,7 @@ async function confirmRoomAllotment() {
             closeRoomModal(); 
             showSmartAlert('success', 'Approved!', `Student has been approved & allotted Room: ${roomNo}`);
             loadPendingAdmissions(); 
-            loadRecords(); // Dashboard records update karna
+            loadRecords(); 
         } else {
             showSmartAlert('error', 'Error', data.message);
         }
@@ -287,14 +301,12 @@ async function rejectStudent(studentId) {
                 showSmartAlert('success', 'Rejected', 'Registration request rejected and deleted.');
                 loadPendingAdmissions();
             }
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) { console.error(err); }
     }
 }
 
 // ==========================================
-// UTILITY FUNCTIONS (Profile Modal Fix)
+// UTILITY FUNCTIONS
 // ==========================================
 function openProfile(i) {
     const s = studentsCache[i];
