@@ -1,6 +1,6 @@
 const user = JSON.parse(localStorage.getItem('user'));
 let selectedStudentId = null;
-
+let adminStudentsCache = []; 
 const API_BASE_URL = 'https://hostrac.onrender.com';
 
 if (!user || user.role !== 'admin') {
@@ -67,48 +67,76 @@ async function loadActiveStudents() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/admin/students`);
         const students = await res.json();
-        const tbody = document.getElementById('activeStudentTable');
-        tbody.innerHTML = '';
+        
+        // Reverse karke latest baccho ko upar rakha
+        adminStudentsCache = students.reverse();
+        renderAdminStudentTable(adminStudentsCache);
 
-        students.forEach(s => {
-            const isPaid = s.feesStatus === 'Paid';
-            const isOut = s.currentStatus === 'Out';
-            const statusLabel = isOut ? 'OUT 🚩' : 'IN ✅';
-            const statusStyle = isOut 
-                ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
-                : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
-            
-            const feesBadgeStyle = isPaid 
-                ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" 
-                : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;";
-
-            const safeName = (s.name || '').replace(/'/g, "\\'");
-            const safeEmail = (s.email || '').replace(/'/g, "\\'");
-            const safeMobile = (s.mobile || '').replace(/'/g, "\\'");
-            const safeRoom = (s.roomNo || '').replace(/'/g, "\\'");
-            const safeCollege = (s.collegeName || '').replace(/'/g, "\\'");
-            const safeFather = (s.fatherName || '').replace(/'/g, "\\'");
-            const safeMother = (s.motherName || '').replace(/'/g, "\\'");
-            const safeAddress = (s.address || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
-
-            // 🚀 Table ab ekdum clean hai! Sirf 1 "Manage" button!
-            tbody.innerHTML += `
-                <tr>
-                    <td><b>${s.name}</b><br><small style="color:#636e72;">ID: ${s.email}</small></td>
-                    <td>${s.roomNo}</td>
-                    <td><span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; ${statusStyle}">${statusLabel}</span></td>
-                    <td><span style="${feesBadgeStyle}">${s.feesStatus || 'Unpaid'}</span></td>
-                    <td style="text-align: center;">
-                        <button class="btn btn-primary" style="padding: 8px 20px; font-size: 13px; border-radius: 6px; cursor: pointer; background: #6c63ff; color: white; border: none;" 
-                            onclick="openEditModal('${s._id}', '${safeName}', '${safeEmail}', '${safeMobile}', '${safeRoom}', '${safeCollege}', '${safeFather}', '${safeMother}', '${safeAddress}', '${s.feesStatus}')">
-                            <i class="fas fa-user-cog"></i> Manage
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
     } catch (err) { console.error("Load Students Failed", err); }
 }
+
+// Search Function
+function searchAdminStudents() {
+    const searchTerm = document.getElementById('adminStudentSearch').value.toLowerCase();
+    
+    // Name, Room, ya Email kisi se bhi search kar sakte hain
+    const filteredList = adminStudentsCache.filter(s => 
+        (s.name && s.name.toLowerCase().includes(searchTerm)) || 
+        (s.email && s.email.toLowerCase().includes(searchTerm)) || 
+        (s.roomNo && s.roomNo.toString().toLowerCase().includes(searchTerm))
+    );
+    
+    renderAdminStudentTable(filteredList);
+}
+
+// Table Rendering Function
+function renderAdminStudentTable(list) {
+    const tbody = document.getElementById('activeStudentTable');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: gray;">No students found matching your search.</td></tr>';
+        return;
+    }
+
+    list.forEach(s => {
+        const isPaid = s.feesStatus === 'Paid';
+        const isOut = s.currentStatus === 'Out';
+        const statusLabel = isOut ? 'OUT 🚩' : 'IN ✅';
+        const statusStyle = isOut 
+            ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
+            : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
+        
+        const feesBadgeStyle = isPaid 
+            ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" 
+            : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;";
+
+        const safeName = (s.name || '').replace(/'/g, "\\'");
+        const safeEmail = (s.email || '').replace(/'/g, "\\'");
+        const safeMobile = (s.mobile || '').replace(/'/g, "\\'");
+        const safeRoom = (s.roomNo || '').replace(/'/g, "\\'");
+        const safeCollege = (s.collegeName || '').replace(/'/g, "\\'");
+        const safeFather = (s.fatherName || '').replace(/'/g, "\\'");
+        const safeMother = (s.motherName || '').replace(/'/g, "\\'");
+        const safeAddress = (s.address || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
+
+        tbody.innerHTML += `
+            <tr>
+                <td><b>${s.name}</b><br><small style="color:#636e72;">ID: ${s.email}</small></td>
+                <td>${s.roomNo || 'N/A'}</td>
+                <td><span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; ${statusStyle}">${statusLabel}</span></td>
+                <td><span style="${feesBadgeStyle}">${s.feesStatus || 'Unpaid'}</span></td>
+                <td style="text-align: center;">
+                    <button class="btn btn-primary" style="padding: 8px 20px; font-size: 13px; border-radius: 6px; cursor: pointer; background: #6c63ff; color: white; border: none;" 
+                        onclick="openEditModal('${s._id}', '${safeName}', '${safeEmail}', '${safeMobile}', '${safeRoom}', '${safeCollege}', '${safeFather}', '${safeMother}', '${safeAddress}', '${s.feesStatus}')">
+                        <i class="fas fa-user-cog"></i> Manage
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+} 
 
 // ==========================================
 // 2. PERMANENT EXIT & EX-STUDENTS
@@ -262,7 +290,7 @@ async function loadPendingAdmissions() {
             return;
         }
 
-        students.forEach(student => {
+        [...students].reverse().forEach(student => {
             tbody.innerHTML += `
                 <tr>
                     <td>
@@ -394,7 +422,7 @@ async function submitEditStudent() {
         mobile: document.getElementById('editStdMobile').value,
         roomNo: document.getElementById('editStdRoom').value,
         collegeName: document.getElementById('editStdCollege').value,
-        feesStatus: document.getElementById('editStdFees').value, // Bheja Fees Status
+        feesStatus: document.getElementById('editStdFees').value, 
         fatherName: document.getElementById('editStdFather').value,
         motherName: document.getElementById('editStdMother').value,
         address: document.getElementById('editStdAddress').value
