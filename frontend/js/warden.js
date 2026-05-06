@@ -26,7 +26,7 @@ function showPanel(id, el) {
 }
 
 /**
- * Load Records & Update Clickable Names (FIXED: Pending students hidden)
+ * Load Records & Update Clickable Names (FIXED: Pending hidden + Fees Color added)
  */
 async function loadRecords() {
     try {
@@ -34,6 +34,8 @@ async function loadRecords() {
         if (!res.ok) throw new Error("Failed to fetch");
         
         const allFetchedStudents = await res.json();
+
+        // Sirf un students ko filter karke rakhein jo 'Pending' nahi hain
         studentsCache = allFetchedStudents.filter(s => s.status !== 'Pending');
 
         const tbody = document.getElementById('recordsBody');
@@ -52,6 +54,12 @@ async function loadRecords() {
                 ? "background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2;" 
                 : "background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4;";
 
+            // 🚀 FIX: Fees Badge Style Admin page se yahan bhi add kar diya
+            const isFeesPaid = s.feesStatus === 'Paid';
+            const feesBadgeStyle = isFeesPaid 
+                ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" 
+                : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;";
+
             tbody.innerHTML += `
                 <tr>
                     <td>
@@ -65,14 +73,12 @@ async function loadRecords() {
                             ${isOut ? 'OUT 🚩' : 'IN ✅'}
                         </span>
                     </td>
-                    <td><span class="${s.feesStatus === 'Paid' ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></td>
+                    <td><span style="${feesBadgeStyle}">${s.feesStatus || 'Unpaid'}</span></td>
                     <td><button class="btn btn-primary" style="padding:5px 12px; font-size:11px;" onclick="openProfile(${i})">View Profile</button></td>
                 </tr>`;
         });
     } catch (err) { console.error(err); }
 }
-
-
 /**
  * Fetch History for Single Student
  */
@@ -288,19 +294,24 @@ async function rejectStudent(studentId) {
 }
 
 // ==========================================
-// UTILITY FUNCTIONS
+// UTILITY FUNCTIONS (Profile Modal Fix)
 // ==========================================
-
 function openProfile(i) {
     const s = studentsCache[i];
     const formattedDate = s.admissionDate ? new Date(s.admissionDate).toLocaleDateString('en-GB') : '09/04/2026';
+    
+    const isFeesPaid = s.feesStatus === 'Paid';
+    const feesBadgeStyle = isFeesPaid 
+        ? "background: #f0fff4; color: #27ae60; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #27ae60;" 
+        : "background: #fff5f5; color: #e74c3c; padding: 4px 8px; border-radius: 6px; font-weight: bold; border: 1px solid #e74c3c;";
+
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">COLLEGE</label><br><span>${s.collegeName || '-'}</span></div>
         <div style="margin-bottom:10px;"><label style="font-weight:700; color:var(--primary); font-size:10px;">Hostel Admission Date</label><br><b>${formattedDate}</b></div>
         <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">MOBILE</label><br><span>${s.mobile || '-'}</span></div>
         <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">FATHER NAME</label><br><span>${s.fatherName || '-'}</span></div>
         <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">MOTHER NAME</label><br><span>${s.motherName || '-'}</span></div>
-        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">FEES STATUS</label><br><span class="${s.feesStatus === 'Paid' ? 'fees-paid' : 'fees-unpaid'}">${s.feesStatus}</span></div>
+        <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">FEES STATUS</label><br><span style="${feesBadgeStyle}">${s.feesStatus || 'Unpaid'}</span></div>
         <div class="modal-item" style="margin-bottom:10px;"><label style="font-size:10px; font-weight:700; color:var(--primary);">ADDRESS</label><br><span>${s.address || '-'}</span></div>
     `;
     document.getElementById('profileModal').style.display = 'block';
