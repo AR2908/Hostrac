@@ -16,7 +16,7 @@ router.post('/login', authController.login);
 // =========================================================
 router.post('/register', async (req, res) => {
     try {
-        const { name, college, fatherName, motherName, address, email, password, role } = req.body;
+        const { name, college, fatherName, motherName, address, email,mobile, password, role } = req.body;
 
         // Check if email exists in ANY collection
         const checkStudent = await Student.findOne({ email });
@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
 
         // Create new student with 'Pending' status
         const newStudent = new Student({
-            name, email, password, collegeName: college, fatherName, motherName, address, role: 'student',
+            name, email,mobile, password, collegeName: college, fatherName, motherName, address, role: 'student',
             status: 'Pending' // Admin isko Active karega
         });
 
