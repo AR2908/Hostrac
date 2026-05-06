@@ -26,18 +26,21 @@ function showPanel(id, el) {
 }
 
 /**
- * Load Records & Update Clickable Names
+ * Load Records & Update Clickable Names (FIXED: Pending students hidden)
  */
 async function loadRecords() {
     try {
         const res = await fetch(`${API_BASE_URL}/api/warden/all-students`);
         if (!res.ok) throw new Error("Failed to fetch");
         
-        studentsCache = await res.json();
+        const allFetchedStudents = await res.json();
+        studentsCache = allFetchedStudents.filter(s => s.status !== 'Pending');
+
         const tbody = document.getElementById('recordsBody');
         if(!tbody) return;
         tbody.innerHTML = '';
 
+        // Stats ab sirf Approved students ko count karega
         const outStudentsCount = studentsCache.filter(s => s.currentStatus === 'Out').length;
         if(document.getElementById('count-total')) document.getElementById('count-total').innerText = studentsCache.length;
         if(document.getElementById('count-out')) document.getElementById('count-out').innerText = outStudentsCount;
@@ -68,6 +71,7 @@ async function loadRecords() {
         });
     } catch (err) { console.error(err); }
 }
+
 
 /**
  * Fetch History for Single Student
