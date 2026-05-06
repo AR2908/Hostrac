@@ -32,8 +32,11 @@ async function loadRecords() {
         const res = await fetch(`${API_BASE_URL}/api/warden/all-students`);
         if (!res.ok) throw new Error("Failed to fetch");
         
-        const allFetchedStudents = await res.json();
-        studentsCache = allFetchedStudents.filter(s => s.status !== 'Pending').reverse();
+      const allFetchedStudents = await res.json();
+
+studentsCache = allFetchedStudents
+  .filter(s => s.status !== 'Pending')
+  .sort((a, b) => a.name.localeCompare(b.name)); 
 
         const outStudentsCount = studentsCache.filter(s => s.currentStatus === 'Out').length;
         if(document.getElementById('count-total')) document.getElementById('count-total').innerText = studentsCache.length;
