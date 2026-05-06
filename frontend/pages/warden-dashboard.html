@@ -27,7 +27,6 @@
         </div>
         
         <nav>
-            <!-- 🚀 NEW: Admissions Tab added for Warden -->
             <a onclick="showPanel('admissions', this)"><i class="fas fa-user-plus icon"></i> <span class="nav-text">New Admissions</span></a>
             <a class="active" onclick="showPanel('outpass', this)"><i class="fas fa-envelope-open-text icon"></i> <span class="nav-text">Requests</span></a>
             <a onclick="showPanel('records', this)"><i class="fas fa-clipboard-list icon"></i> <span class="nav-text">Records</span></a>
@@ -40,8 +39,6 @@
     </div>
 
     <div class="main">
-        
-        <!-- COMPACT STATS GRID -->
         <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
             <div class="stat-card blue" style="padding: 15px 10px; text-align: center;">
                 <div class="label" style="font-size: 11px;">Total</div>
@@ -57,7 +54,6 @@
             </div>
         </div>
 
-        <!-- 🚀 NEW ADMISSIONS PANEL FOR WARDEN -->
         <div id="panel-admissions" class="panel">
             <div class="page-header">
                 <h1>New Admissions</h1>
@@ -75,8 +71,7 @@
                             </tr>
                         </thead>
                         <tbody id="admissionTableBody">
-                            <!-- Data will load here -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -108,9 +103,17 @@
         <div id="panel-records" class="panel">
             <div class="page-header">
                 <h1>Student Directory</h1>
-                <p>Click on any student's name to view their complete history</p>
+                <p>Manage and search active hostel students</p>
             </div>
+            
             <div class="section">
+                <div style="margin-bottom: 20px; position: relative;">
+                    <i class="fas fa-search" style="position: absolute; left: 15px; top: 15px; color: #94a3b8;"></i>
+                    <input type="text" id="studentSearchInput" placeholder="Search by name or room number..." 
+                        style="width: 100%; padding: 12px 12px 12px 45px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: 0.3s;"
+                        onkeyup="searchStudents()">
+                </div>
+
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -129,7 +132,6 @@
         </div>
     </div>
 
-    <!-- 🚀 NEW: Room Allotment Modal for Warden -->
     <div id="roomAllotModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(3px);">
         <div style="background: white; padding: 30px; border-radius: 15px; width: 350px; max-width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: popIn 0.3s ease-out;">
             <div style="font-size: 40px; color: #6c5ce7; margin-bottom: 10px;"><i class="fas fa-bed"></i></div>
@@ -146,7 +148,6 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
     <div id="profileModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></span>
@@ -155,7 +156,6 @@
         </div>
     </div>
 
-    <!-- History Modal -->
     <div id="historyModal" class="modal" style="display: none;">
         <div class="modal-content" style="width: 95%; max-width: 800px;">
             <span class="close-btn" onclick="document.getElementById('historyModal').style.display='none'"><i class="fas fa-times"></i></span>
