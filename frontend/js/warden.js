@@ -195,6 +195,7 @@ async function loadPendingAdmissions() {
                     <td>
                         <b>${student.name || 'No Name'}</b><br>
                         <small style="color: #64748b;">${student.email || 'No Email'}</small><br>
+                        <small style="color: #64748b;">${student.mobile || 'No Mob'}</small><br>
                         <small style="color: #6c63ff; font-weight: bold;">${student.collegeName || 'N/A'}</small>
                     </td>
                     <td>
