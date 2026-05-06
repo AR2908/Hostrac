@@ -8,7 +8,7 @@ const studentSchema = new mongoose.Schema({
     roomNo: { type: String, default: 'Not Assigned' },
     feesStatus: { type: String, default: 'Unpaid' },
     collegeName: { type: String, default: '-' },
-    mobile: { type: String, default: '-' },
+    mobile: { type: String, required: true },
     fatherName: { type: String, default: '-' },
     motherName: { type: String, default: '-' },
     status: { type: String, default: 'Active' },
