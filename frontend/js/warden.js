@@ -33,18 +33,14 @@ async function loadRecords() {
         if (!res.ok) throw new Error("Failed to fetch");
         
         const allFetchedStudents = await res.json();
-
-        // Filter Pending & Reverse to show latest first
         studentsCache = allFetchedStudents.filter(s => s.status !== 'Pending').reverse();
 
-        // Update Stats
         const outStudentsCount = studentsCache.filter(s => s.currentStatus === 'Out').length;
         if(document.getElementById('count-total')) document.getElementById('count-total').innerText = studentsCache.length;
         if(document.getElementById('count-out')) document.getElementById('count-out').innerText = outStudentsCount;
         if(document.getElementById('count-in')) document.getElementById('count-in').innerText = studentsCache.length - outStudentsCount;
-
-        // Render Table
-        renderStudentTable(studentsCache);
+        searchStudents(); 
+        
     } catch (err) { console.error(err); }
 }
 
